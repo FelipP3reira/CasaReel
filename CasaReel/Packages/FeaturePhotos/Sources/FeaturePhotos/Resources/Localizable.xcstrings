@@ -31,12 +31,32 @@
         }
       }
     },
+    "Aplicar ordem sugerida": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply suggested order"
+          }
+        }
+      }
+    },
     "Arquivo maior que 25 MB.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "File larger than 25 MB."
+          }
+        }
+      }
+    },
+    "Banheiro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bathroom"
           }
         }
       }
@@ -51,6 +71,26 @@
         }
       }
     },
+    "Com granulado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grainy"
+          }
+        }
+      }
+    },
+    "Com granulado. Fotografe com mais luz.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grainy. Shoot with more light."
+          }
+        }
+      }
+    },
     "Continuar": {
       "localizations": {
         "en": {
@@ -61,12 +101,32 @@
         }
       }
     },
-    "Disponível em breve": {
+    "Cozinha": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Coming soon"
+            "value": "Kitchen"
+          }
+        }
+      }
+    },
+    "Fachada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facade"
+          }
+        }
+      }
+    },
+    "Fachada, sala, cozinha, quartos, banheiros e área externa. Você ainda pode arrastar para ajustar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facade, living room, kitchen, bedrooms, bathrooms and outdoor areas. You can still drag to adjust."
           }
         }
       }
@@ -77,6 +137,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unsupported format. Use JPEG, HEIC or PNG."
+          }
+        }
+      }
+    },
+    "Foto %lld: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo %lld: %@"
+          }
+        }
+      }
+    },
+    "Foto desfocada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blurry photo"
+          }
+        }
+      }
+    },
+    "Foto desfocada. Segure o celular firme e toque na tela para focar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blurry photo. Hold the phone steady and tap the screen to focus."
           }
         }
       }
@@ -101,6 +191,16 @@
         }
       }
     },
+    "Foto pronta: %@, %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo ready: %@, %@"
+          }
+        }
+      }
+    },
     "Foto sendo preparada": {
       "localizations": {
         "en": {
@@ -121,12 +221,72 @@
         }
       }
     },
+    "Muito clara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too bright"
+          }
+        }
+      }
+    },
+    "Muito clara. Evite fotografar contra a luz da janela.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too bright. Avoid shooting against the window light."
+          }
+        }
+      }
+    },
+    "Muito escura": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too dark"
+          }
+        }
+      }
+    },
+    "Muito escura. Acenda as luzes ou abra as janelas e tire outra foto.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too dark. Turn on the lights or open the windows and take another photo."
+          }
+        }
+      }
+    },
+    "Nenhum rosto encontrado até agora.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No faces found so far."
+          }
+        }
+      }
+    },
     "Não foi possível ler esta foto.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "This photo couldn't be read."
+          }
+        }
+      }
+    },
+    "Outro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
           }
         }
       }
@@ -141,12 +301,32 @@
         }
       }
     },
+    "Piscina": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pool"
+          }
+        }
+      }
+    },
     "Preparando fotos…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Preparing photos…"
+          }
+        }
+      }
+    },
+    "Quarto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedroom"
           }
         }
       }
@@ -187,6 +367,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "Low resolution: at least 1280 px on the longer side."
+          }
+        }
+      }
+    },
+    "Rostos encontrados nas fotos serão desfocados.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faces found in the photos will be blurred."
+          }
+        }
+      }
+    },
+    "Sala": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Living room"
+          }
+        }
+      }
+    },
+    "Sugestões": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggestions"
+          }
+        }
+      }
+    },
+    "Varanda": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balcony"
+          }
+        }
+      }
+    },
+    "boa qualidade": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "good quality"
           }
         }
       }

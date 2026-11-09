@@ -17,6 +17,7 @@ struct AppEnvironment: Sendable {
     let configVerifier: SignedConfigVerifier
     let apiClient: any APIClient
     let photoPreparer: any PhotoPreparing
+    let photoAnalyzer: any PhotoAnalyzing
     let videoRenderer: any VideoRenderer
     let localStore: any LocalStore
 
@@ -64,6 +65,7 @@ struct AppEnvironment: Sendable {
             configVerifier: verifier,
             apiClient: apiClient,
             photoPreparer: PhotoPreparationService(),
+            photoAnalyzer: PhotoAnalysisService(),
             videoRenderer: AVFoundationVideoRenderer(),
             localStore: SwiftDataLocalStore()
         )

@@ -13,7 +13,7 @@ struct RootView: View {
 
     init(environment: AppEnvironment) {
         self.environment = environment
-        _photoSelection = State(initialValue: PhotoSelectionModel(preparer: environment.photoPreparer))
+        _photoSelection = State(initialValue: PhotoSelectionModel(preparer: environment.photoPreparer, analyzer: environment.photoAnalyzer))
     }
 
     private var session: SessionStore { environment.session }

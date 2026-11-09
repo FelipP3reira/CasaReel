@@ -66,18 +66,49 @@ public struct PhotoSelectionView: View {
                     }
                 }
 
+                if model.hasAnalyses {
+                    SecondaryButton(featureString("Aplicar ordem sugerida"), systemImage: "list.number") {
+                        model.applySuggestedOrder()
+                    }
+                    Text("Fachada, sala, cozinha, quartos, banheiros e área externa. Você ainda pode arrastar para ajustar.", bundle: .module)
+                        .font(DSFont.caption)
+                        .foregroundStyle(DSColor.textSecondary)
+                }
+
+                if !model.suggestions.isEmpty {
+                    Card {
+                        VStack(alignment: .leading, spacing: Spacing.small) {
+                            Text("Sugestões", bundle: .module)
+                                .font(DSFont.headline)
+                                .accessibilityAddTraits(.isHeader)
+                            ForEach(model.suggestions, id: \.position) { suggestion in
+                                ForEach(suggestion.warnings, id: \.self) { warning in
+                                    Label {
+                                        Text(featureString("Foto \(suggestion.position): \(warning.advice)"))
+                                    } icon: {
+                                        Image(systemName: "lightbulb")
+                                    }
+                                    .font(DSFont.callout)
+                                    .foregroundStyle(DSColor.textPrimary)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Toggle(isOn: $model.blurFaces) {
                     VStack(alignment: .leading) {
                         Text("Borrar rostos", bundle: .module)
-                        Text("Disponível em breve", bundle: .module)
+                        Text(model.hasFaces ? featureString("Rostos encontrados nas fotos serão desfocados.") : featureString("Nenhum rosto encontrado até agora."))
                             .font(DSFont.caption)
                             .foregroundStyle(DSColor.textSecondary)
                     }
                 }
-                .disabled(true)
 
-                PrimaryButton(continueTitle) { onContinue(model.readyPhotos) }
-                    .disabled(!model.canContinue)
+                PrimaryButton(continueTitle) {
+                    Task { onContinue(await model.finalizedPhotos()) }
+                }
+                .disabled(!model.canContinue)
             }
             .padding(Spacing.medium)
         }
@@ -119,11 +150,17 @@ struct PhotoCell: View {
             .accessibilityLabel(Text("Remover foto", bundle: .module))
         }
         .overlay(alignment: .bottomLeading) {
-            if let duplicate = item.duplicate {
-                Tag(duplicate == .exact ? featureString("Repetida") : featureString("Parecida"), style: .warning)
-                    .background(Capsule().fill(DSColor.surface))
-                    .padding(Spacing.xSmall)
+            VStack(alignment: .leading, spacing: Spacing.xSmall) {
+                if let duplicate = item.duplicate {
+                    Tag(duplicate == .exact ? featureString("Repetida") : featureString("Parecida"), style: .warning)
+                        .background(Capsule().fill(DSColor.surface))
+                }
+                if let analysis = item.analysis {
+                    Tag(analysis.room.label, style: analysis.warnings.isEmpty ? .neutral : .warning)
+                        .background(Capsule().fill(DSColor.surface))
+                }
             }
+            .padding(Spacing.xSmall)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityText)
@@ -158,7 +195,12 @@ struct PhotoCell: View {
     private var accessibilityText: Text {
         switch item.state {
         case .preparing: Text("Foto sendo preparada", bundle: .module)
-        case .ready: item.duplicate == nil ? Text("Foto pronta", bundle: .module) : Text("Foto pronta, possível repetição", bundle: .module)
+        case .ready:
+            if let analysis = item.analysis {
+                Text(featureString("Foto pronta: \(analysis.room.label), \(analysis.warnings.isEmpty ? featureString("boa qualidade") : analysis.warnings[0].title)"))
+            } else {
+                item.duplicate == nil ? Text("Foto pronta", bundle: .module) : Text("Foto pronta, possível repetição", bundle: .module)
+            }
         case .rejected(let reason): Text(reason.message)
         }
     }
@@ -205,6 +247,41 @@ extension PhotoRejection {
         case .tooSmall: featureString("Resolução baixa: mínimo de 1280 px no lado maior.")
         case .tooManyPixels: featureString("Imagem grande demais (mais de 50 megapixels).")
         case .unreadable: featureString("Não foi possível ler esta foto.")
+        }
+    }
+}
+
+extension RoomType {
+    var label: LocalizedStringResource {
+        switch self {
+        case .facade: featureString("Fachada")
+        case .livingRoom: featureString("Sala")
+        case .kitchen: featureString("Cozinha")
+        case .bedroom: featureString("Quarto")
+        case .bathroom: featureString("Banheiro")
+        case .balcony: featureString("Varanda")
+        case .pool: featureString("Piscina")
+        case .other: featureString("Outro")
+        }
+    }
+}
+
+extension QualityWarning {
+    var title: LocalizedStringResource {
+        switch self {
+        case .blurry: featureString("Foto desfocada")
+        case .tooDark: featureString("Muito escura")
+        case .tooBright: featureString("Muito clara")
+        case .noisy: featureString("Com granulado")
+        }
+    }
+
+    var advice: LocalizedStringResource {
+        switch self {
+        case .blurry: featureString("Foto desfocada. Segure o celular firme e toque na tela para focar.")
+        case .tooDark: featureString("Muito escura. Acenda as luzes ou abra as janelas e tire outra foto.")
+        case .tooBright: featureString("Muito clara. Evite fotografar contra a luz da janela.")
+        case .noisy: featureString("Com granulado. Fotografe com mais luz.")
         }
     }
 }

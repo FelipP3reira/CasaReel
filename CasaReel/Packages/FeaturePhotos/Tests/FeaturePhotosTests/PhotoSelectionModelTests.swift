@@ -1,3 +1,4 @@
+import CoreGraphics
 import Domain
 import Foundation
 import os
@@ -150,5 +151,77 @@ struct PhotoSelectionModelTests {
         let messages = Set(reasons.map { String(localized: $0.message) })
         #expect(messages.count == reasons.count)
         #expect(!messages.contains(""))
+    }
+}
+
+/// Analyzer double: the photo's file name decides room and faces (e.g. `kitchen-1`, `bedroom-face`).
+final class FakeAnalyzer: PhotoAnalyzing {
+    private let blurs = OSAllocatedUnfairLock(initialState: 0)
+    var blurCalls: Int { blurs.withLock { $0 } }
+
+    func analyze(_ photo: PreparedPhoto) async throws -> AnalysisResult {
+        let name = photo.fileURL.lastPathComponent
+        let room = RoomType.allCases.first { name.hasPrefix($0.rawValue) } ?? .other
+        return AnalysisResult(
+            photoID: photo.id, qualityScore: name.contains("blurry") ? 0.2 : 0.9, sharpness: 0.5, exposure: 0.5, noise: 2,
+            warnings: name.contains("blurry") ? [.blurry] : [], room: room, roomConfidence: 0.8,
+            focus: CGRect(x: 0, y: 0, width: 1, height: 1),
+            faces: name.contains("face") ? [CGRect(x: 0.4, y: 0.2, width: 0.1, height: 0.1)] : []
+        )
+    }
+
+    func blurFaces(in photo: PreparedPhoto, regions: [CGRect]) async throws -> PreparedPhoto {
+        blurs.withLock { $0 += 1 }
+        return PreparedPhoto(id: photo.id, fileURL: photo.fileURL.appendingPathExtension("blurred"), sha256: "blurred-\(photo.sha256)",
+                             size: photo.size, width: photo.width, height: photo.height, mimeType: .jpeg, perceptualHash: photo.perceptualHash)
+    }
+}
+
+@MainActor
+struct PhotoAnalysisIntegrationTests {
+    private let preparer = FakePreparer()
+    private let analyzer = FakeAnalyzer()
+
+    private func model(_ names: [String]) async -> PhotoSelectionModel {
+        let model = PhotoSelectionModel(preparer: preparer, analyzer: analyzer)
+        model.add(names.map { FakeSource(name: $0) })
+        await model.waitUntilPrepared()
+        return model
+    }
+
+    @Test func attachesAnalysisAndListsSuggestions() async {
+        let model = await model(["kitchen-1", "bedroom-blurry"])
+
+        #expect(model.items.map { $0.analysis?.room } == [.kitchen, .bedroom])
+        #expect(model.hasAnalyses)
+        #expect(model.suggestions.map(\.position) == [2])
+        #expect(model.suggestions.first?.warnings == [.blurry])
+    }
+
+    @Test func suggestedOrderFollowsTheStoryAndKeepsRejectedLast() async {
+        let model = await model(["bathroom-1", "reject-x", "facade-1", "kitchen-1", "living_room-1"])
+
+        model.applySuggestedOrder()
+
+        let rooms = model.items.map { $0.analysis?.room }
+        #expect(rooms == [.facade, .livingRoom, .kitchen, .bathroom, nil])
+        if case .rejected = model.items.last?.state {} else { Issue.record("rejected photo should stay at the end") }
+    }
+
+    @Test func finalizeBlursFacesOnceWhenEnabled() async {
+        let model = await model(["living_room-face", "kitchen-1"])
+        #expect(model.hasFaces)
+
+        #expect(await model.finalizedPhotos().allSatisfy { !$0.sha256.hasPrefix("blurred") }, "off by default")
+
+        model.blurFaces = true
+        let first = await model.finalizedPhotos()
+        let second = await model.finalizedPhotos()
+
+        #expect(analyzer.blurCalls == 1)
+        #expect(first.map { $0.sha256.hasPrefix("blurred") } == [true, false])
+        #expect(second == first)
+        #expect(preparer.discarded.count == 1, "the unblurred original is deleted")
+        #expect(model.items[0].analysis?.faces.isEmpty == false, "faces stay known for framing")
     }
 }

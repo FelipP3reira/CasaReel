@@ -23,18 +23,23 @@ public final class PhotoSelectionModel {
         public internal(set) var state: State
         /// Set when an earlier photo in the list is the same picture.
         public internal(set) var duplicate: DuplicateMatch?
+        /// On-device analysis (P09); `nil` while pending or when no analyzer is configured.
+        public internal(set) var analysis: AnalysisResult?
     }
 
     public private(set) var items: [Item] = []
-    /// Hook for face blurring (P09); off by default.
+    /// Blurs detected faces when the selection is finalized; off by default.
     public var blurFaces = false
 
     private let preparer: any PhotoPreparing
+    private let analyzer: (any PhotoAnalyzing)?
+    private var blurredItems: Set<UUID> = []
     private var queue: [(id: UUID, source: any PhotoSource)] = []
     private var worker: Task<Void, Never>?
 
-    public init(preparer: any PhotoPreparing) {
+    public init(preparer: any PhotoPreparing, analyzer: (any PhotoAnalyzing)? = nil) {
         self.preparer = preparer
+        self.analyzer = analyzer
     }
 
     // MARK: Derived state
@@ -56,6 +61,22 @@ public final class PhotoSelectionModel {
         max(0, PhotoLimits.maximumCount - (items.count - rejectedCount))
     }
 
+    /// Photos with quality warnings, numbered by their current position (1-based).
+    public var suggestions: [(position: Int, warnings: [QualityWarning])] {
+        items.enumerated().compactMap { index, item in
+            guard let warnings = item.analysis?.warnings, !warnings.isEmpty else { return nil }
+            return (index + 1, warnings)
+        }
+    }
+
+    public var hasAnalyses: Bool {
+        items.contains { $0.analysis != nil }
+    }
+
+    public var hasFaces: Bool {
+        items.contains { !($0.analysis?.faces.isEmpty ?? true) }
+    }
+
     public var canContinue: Bool {
         !isPreparing && (PhotoLimits.minimumCount...PhotoLimits.maximumCount).contains(readyPhotos.count)
     }
@@ -65,7 +86,7 @@ public final class PhotoSelectionModel {
     public func add(_ sources: [any PhotoSource]) {
         for source in sources.prefix(remainingSlots) {
             let id = UUID()
-            items.append(Item(id: id, state: .preparing, duplicate: nil))
+            items.append(Item(id: id, state: .preparing, duplicate: nil, analysis: nil))
             queue.append((id, source))
         }
         startWorkerIfNeeded()
@@ -94,12 +115,42 @@ public final class PhotoSelectionModel {
         refreshDuplicates()
     }
 
+    /// Reorders ready photos by room (facade → living room → … → other) and quality; the user can still drag.
+    public func applySuggestedOrder() {
+        let ready = items.filter { if case .ready = $0.state { true } else { false } }
+        let analyses = Dictionary(uniqueKeysWithValues: ready.compactMap { item in item.analysis.map { (item.id, $0) } })
+        let order = ShotOrderPlanner.order(photoIDs: ready.map(\.id), analyses: analyses)
+        let byID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        let rest = items.filter { item in !order.contains(item.id) }
+        items = order.compactMap { byID[$0] } + rest
+        refreshDuplicates()
+    }
+
+    /// The photos to hand to the video editor, with faces blurred first when `blurFaces` is on.
+    public func finalizedPhotos() async -> [PreparedPhoto] {
+        await waitUntilPrepared()
+        guard blurFaces, let analyzer else { return readyPhotos }
+        for item in items {
+            // Faces stay in the analysis: the video engine still needs them to avoid cropping.
+            guard !blurredItems.contains(item.id),
+                  case .ready(let photo) = item.state, let faces = item.analysis?.faces, !faces.isEmpty,
+                  let blurred = try? await analyzer.blurFaces(in: photo, regions: faces),
+                  let index = items.firstIndex(where: { $0.id == item.id })
+            else { continue }
+            preparer.discard(photo)
+            items[index].state = .ready(blurred)
+            blurredItems.insert(item.id)
+        }
+        return readyPhotos
+    }
+
     /// Abandons the selection and deletes every temporary file.
     public func reset() {
         worker?.cancel()
         worker = nil
         queue.removeAll()
         items.removeAll()
+        blurredItems.removeAll()
         preparer.discardAll()
     }
 
@@ -120,6 +171,10 @@ public final class PhotoSelectionModel {
                     return
                 }
                 self.finish(next.id, with: state)
+                if case .ready(let photo) = state, let analyzer = self.analyzer,
+                   let analysis = try? await analyzer.analyze(photo), !Task.isCancelled {
+                    self.attach(analysis, to: next.id)
+                }
             }
             // A cancelled worker was already replaced by `reset()`; don't clear its successor.
             if !Task.isCancelled { self?.worker = nil }
@@ -152,6 +207,11 @@ public final class PhotoSelectionModel {
         }
         items[index].state = state
         refreshDuplicates()
+    }
+
+    private func attach(_ analysis: AnalysisResult, to id: UUID) {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        items[index].analysis = analysis
     }
 
     /// Only later copies are flagged, so the first occurrence stays clean.
