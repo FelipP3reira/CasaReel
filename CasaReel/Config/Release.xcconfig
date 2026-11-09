@@ -1,0 +1,4 @@
+#include "Shared.xcconfig"
+
+APP_ENVIRONMENT = release
+API_BASE_URL = https:/$()/api.casareel.example/v1

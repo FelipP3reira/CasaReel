@@ -1,0 +1,22 @@
+included:
+  - App
+  - Packages
+excluded:
+  - Packages/*/.build
+
+opt_in_rules:
+  - force_unwrapping
+
+force_unwrapping:
+  severity: error
+force_try:
+  severity: error
+force_cast:
+  severity: error
+
+custom_rules:
+  no_print:
+    name: "No print"
+    regex: '\bprint\s*\('
+    message: "Use os.Logger instead of print."
+    severity: error

@@ -1,0 +1,941 @@
+openapi: 3.1.0
+info:
+  title: CasaReel API
+  version: 1.0.0
+  description: |
+    API REST do CasaReel (Fases 1 e 2; Fase 3 reservada). Contrato neutro de plataforma (iOS/Android/Web).
+    Convenções: JSON, UUIDs, datas ISO 8601 UTC, erros no formato RFC 9457 (problem+json),
+    paginação por cursor, idempotência via header `Idempotency-Key` em POSTs de criação.
+servers:
+  - url: https://api.casareel.example/v1
+    description: Produção (placeholder)
+  - url: https://api.staging.casareel.example/v1
+    description: Staging (placeholder)
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Me
+  - name: Properties
+  - name: Media
+  - name: Jobs
+  - name: Videos
+  - name: Tours
+  - name: Share
+  - name: Billing
+  - name: Public
+paths:
+  /auth/apple:
+    post:
+      tags: [Auth]
+      summary: Login com Sign in with Apple
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/AttestAssertion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AppleLoginRequest' }
+      responses:
+        '200':
+          description: Sessão criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Renova o par de tokens (rotação com detecção de reuso)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: Novo par de tokens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+        '401':
+          description: Token inválido ou sessão revogada (`session_revoked`)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Encerra a sessão atual (ou todas)
+      parameters:
+        - name: all
+          in: query
+          schema: { type: boolean, default: false }
+      responses:
+        '204': { description: Encerrada }
+  /attest/challenge:
+    post:
+      tags: [Auth]
+      summary: Obtém desafio para App Attest
+      security: []
+      responses:
+        '200':
+          description: Desafio de uso único
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [challenge, expiresAt]
+                properties:
+                  challenge: { type: string }
+                  expiresAt: { type: string, format: date-time }
+  /attest/register:
+    post:
+      tags: [Auth]
+      summary: Registra chave atestada do dispositivo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [keyId, attestationObject, challenge]
+              properties:
+                keyId: { type: string }
+                attestationObject: { type: string, description: Base64 }
+                challenge: { type: string }
+      responses:
+        '204': { description: Registrado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /me:
+    get:
+      tags: [Me]
+      summary: Perfil do usuário
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    delete:
+      tags: [Me]
+      summary: Solicita exclusão da conta (carência de 7 dias)
+      description: Exige reautenticação recente. Revoga sessões.
+      responses:
+        '202':
+          description: Exclusão agendada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purgeAfter: { type: string, format: date-time }
+  /me/export:
+    post:
+      tags: [Me]
+      summary: Solicita exportação dos dados (LGPD)
+      responses:
+        '202': { description: Exportação em preparo; será notificado }
+  /me/consents:
+    get:
+      tags: [Me]
+      summary: Lista consentimentos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Consent' }
+    put:
+      tags: [Me]
+      summary: Registra ou revoga consentimento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConsentUpdate' }
+      responses:
+        '204': { description: Atualizado }
+  /me/entitlements:
+    get:
+      tags: [Me, Billing]
+      summary: Plano, limites e saldo de créditos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Entitlements' }
+  /properties:
+    get:
+      tags: [Properties]
+      summary: Lista imóveis do usuário
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Property' }
+    post:
+      tags: [Properties]
+      summary: Cria imóvel
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PropertyCreate' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Property' }
+        '422': { $ref: '#/components/responses/Validation' }
+  /properties/{propertyId}:
+    parameters:
+      - $ref: '#/components/parameters/PropertyId'
+    get:
+      tags: [Properties]
+      summary: Detalhe do imóvel
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Property' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Properties]
+      summary: Atualiza imóvel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PropertyUpdate' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Property' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Properties]
+      summary: Exclui imóvel (soft delete + purga agendada)
+      responses:
+        '204': { description: Excluído }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /properties/{propertyId}/photos/upload-intents:
+    post:
+      tags: [Media]
+      summary: Cria intenções de upload (URLs pré-assinadas)
+      description: Máximo 40 fotos por requisição. Cada item exige tamanho, mime e SHA-256.
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  minItems: 1
+                  maxItems: 40
+                  items: { $ref: '#/components/schemas/UploadIntentRequest' }
+      responses:
+        '201':
+          description: Intenções criadas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  intents:
+                    type: array
+                    items: { $ref: '#/components/schemas/UploadIntent' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Validation' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /media/{mediaId}/complete:
+    post:
+      tags: [Media]
+      summary: Confirma o upload e dispara validação/sanitização
+      parameters:
+        - $ref: '#/components/parameters/MediaId'
+      responses:
+        '202':
+          description: Em processamento
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaAsset' }
+  /properties/{propertyId}/media:
+    get:
+      tags: [Media]
+      summary: Lista mídias do imóvel
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+        - name: kind
+          in: query
+          schema: { type: string, enum: [photo, capture_frame, derivative] }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/MediaAsset' }
+  /media/{mediaId}:
+    parameters:
+      - $ref: '#/components/parameters/MediaId'
+    patch:
+      tags: [Media]
+      summary: Atualiza posição/ambiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position: { type: integer, minimum: 0 }
+                roomType: { type: string, maxLength: 40 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaAsset' }
+    delete:
+      tags: [Media]
+      summary: Exclui mídia
+      responses:
+        '204': { description: Excluída }
+  /templates:
+    get:
+      tags: [Videos]
+      summary: Lista templates ativos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TemplateSummary' }
+  /templates/{slug}:
+    get:
+      tags: [Videos]
+      summary: Obtém spec do template (versão atual, assinada)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplatePackage' }
+  /properties/{propertyId}/jobs:
+    post:
+      tags: [Jobs]
+      summary: Cria job (análise, render no servidor, tour 360, reconstrução 3D)
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/AttestAssertion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobCreate' }
+      responses:
+        '202':
+          description: Job enfileirado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '402': { $ref: '#/components/responses/PaymentRequired' }
+        '422': { $ref: '#/components/responses/Validation' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    get:
+      tags: [Jobs]
+      summary: Lista jobs do imóvel
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Job' }
+  /jobs/{jobId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [Jobs]
+      summary: Estado do job (suporta ETag)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '304': { description: Não modificado }
+    delete:
+      tags: [Jobs]
+      summary: Cancela job
+      responses:
+        '202': { description: Cancelamento solicitado }
+  /properties/{propertyId}/videos:
+    post:
+      tags: [Videos]
+      summary: Registra vídeo renderizado no aparelho e obtém URL de upload
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LocalVideoRegister' }
+      responses:
+        '201':
+          description: Registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  output: { $ref: '#/components/schemas/Output' }
+                  upload: { $ref: '#/components/schemas/UploadIntent' }
+  /properties/{propertyId}/outputs:
+    get:
+      tags: [Videos, Tours]
+      summary: Lista vídeos e tours do imóvel
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Output' }
+  /outputs/{outputId}/download-url:
+    get:
+      tags: [Videos]
+      summary: URL assinada de download (curta duração)
+      parameters:
+        - $ref: '#/components/parameters/OutputId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string, format: uri }
+                  expiresAt: { type: string, format: date-time }
+  /properties/{propertyId}/captures:
+    post:
+      tags: [Tours]
+      summary: Cria captura 3D e retorna URLs de upload de frames
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/AttestAssertion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaptureCreate' }
+      responses:
+        '201':
+          description: Criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capture' }
+  /captures/{captureId}/complete:
+    post:
+      tags: [Tours]
+      summary: Finaliza upload e dispara validação
+      parameters:
+        - name: captureId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '202':
+          description: Em validação
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capture' }
+  /captures/{captureId}:
+    get:
+      tags: [Tours]
+      summary: Estado e relatório de qualidade da captura
+      parameters:
+        - name: captureId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capture' }
+  /outputs/{outputId}/share-links:
+    post:
+      tags: [Share]
+      summary: Cria link público assinado
+      parameters:
+        - $ref: '#/components/parameters/OutputId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresInDays: { type: integer, minimum: 1, maximum: 365, default: 30 }
+                maxViews: { type: integer, minimum: 1 }
+      responses:
+        '201':
+          description: Criado (o token só é retornado nesta resposta)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShareLink' }
+  /share-links/{shareLinkId}:
+    delete:
+      tags: [Share]
+      summary: Revoga link
+      parameters:
+        - name: shareLinkId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Revogado }
+  /public/s/{token}:
+    get:
+      tags: [Public]
+      summary: Resolve link público (vídeo ou manifest de tour)
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: { type: string, minLength: 43, maxLength: 64 }
+      responses:
+        '200':
+          description: Metadados + URLs assinadas de curta duração
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicShare' }
+        '404': { description: 'Inexistente, expirado ou revogado (resposta idêntica)' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /billing/apple/transactions:
+    post:
+      tags: [Billing]
+      summary: Envia transação StoreKit 2 assinada (JWS) para validação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [signedTransaction]
+              properties:
+                signedTransaction: { type: string }
+      responses:
+        '200':
+          description: Entitlements atualizados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Entitlements' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /webhooks/apple:
+    post:
+      tags: [Billing]
+      summary: App Store Server Notifications V2 (uso da Apple)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [signedPayload]
+              properties:
+                signedPayload: { type: string }
+      responses:
+        '200': { description: Processado (idempotente) }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    PropertyId:
+      name: propertyId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    MediaId:
+      name: mediaId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    OutputId:
+      name: outputId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema: { type: string, minLength: 16, maxLength: 64 }
+    AttestAssertion:
+      name: X-App-Attest-Assertion
+      in: header
+      required: false
+      description: Asserção App Attest (base64) para rotas sensíveis.
+      schema: { type: string }
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: Não autenticado
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    PaymentRequired:
+      description: Sem plano/créditos suficientes
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Não encontrado (também usado quando o recurso pertence a outro usuário)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    PayloadTooLarge:
+      description: Excede limites
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Validation:
+      description: Erro de validação
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    TooManyRequests:
+      description: Limite de taxa excedido
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        code: { type: string, description: Código estável para o cliente (ex. `session_revoked`) }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+    Page:
+      type: object
+      properties:
+        nextCursor: { type: [string, 'null'] }
+    AppleLoginRequest:
+      type: object
+      required: [identityToken, nonce, deviceId]
+      properties:
+        identityToken: { type: string }
+        nonce: { type: string }
+        deviceId: { type: string, maxLength: 64 }
+        fullName: { type: string, maxLength: 120 }
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        expiresIn: { type: integer, example: 900 }
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: [string, 'null'], format: email }
+        displayName: { type: [string, 'null'] }
+        locale: { type: string }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+    Consent:
+      type: object
+      properties:
+        purpose: { type: string, enum: [terms, privacy_policy, marketing, analytics, ai_improvement] }
+        version: { type: string }
+        grantedAt: { type: string, format: date-time }
+        revokedAt: { type: [string, 'null'], format: date-time }
+    ConsentUpdate:
+      type: object
+      required: [purpose, granted]
+      properties:
+        purpose: { type: string, enum: [terms, privacy_policy, marketing, analytics, ai_improvement] }
+        version: { type: string }
+        granted: { type: boolean }
+    Entitlements:
+      type: object
+      properties:
+        plan: { type: string, enum: [free, pro, manager] }
+        creditBalance: { type: integer }
+        limits:
+          type: object
+          properties:
+            videosPerMonth: { type: integer }
+            photosPerProperty: { type: integer }
+            watermark: { type: boolean }
+            serverRender: { type: boolean }
+            tour3d: { type: boolean }
+        currentPeriodEnd: { type: [string, 'null'], format: date-time }
+    Property:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        cityPublic: { type: [string, 'null'] }
+        visibility: { type: string, enum: [private, unlisted, public] }
+        createdAt: { type: string, format: date-time }
+    PropertyCreate:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 140 }
+        description: { type: string, maxLength: 4000 }
+        cityPublic: { type: string, maxLength: 80 }
+        address: { type: string, maxLength: 240, description: Armazenado cifrado; nunca exibido publicamente }
+    PropertyUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 1, maxLength: 140 }
+        description: { type: string, maxLength: 4000 }
+        cityPublic: { type: string, maxLength: 80 }
+        address: { type: string, maxLength: 240 }
+        visibility: { type: string, enum: [private, unlisted, public] }
+    UploadIntentRequest:
+      type: object
+      required: [size, mimeType, sha256]
+      properties:
+        size: { type: integer, minimum: 1, maximum: 26214400 }
+        mimeType: { type: string, enum: [image/jpeg, image/heic, image/png] }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        width: { type: integer }
+        height: { type: integer }
+    UploadIntent:
+      type: object
+      properties:
+        mediaId: { type: string, format: uuid }
+        method: { type: string, enum: [PUT] }
+        url: { type: string, format: uri }
+        headers:
+          type: object
+          additionalProperties: { type: string }
+        expiresAt: { type: string, format: date-time }
+    MediaAsset:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string }
+        status: { type: string, enum: [pending, uploaded, processing, ready, rejected, expired] }
+        rejectReason: { type: [string, 'null'] }
+        position: { type: [integer, 'null'] }
+        roomType: { type: [string, 'null'] }
+        thumbnailUrl: { type: [string, 'null'], format: uri }
+        analysis:
+          type: object
+          properties:
+            qualityScore: { type: number, minimum: 0, maximum: 1 }
+            blur: { type: number }
+            exposure: { type: number }
+            warnings:
+              type: array
+              items: { type: string }
+    TemplateSummary:
+      type: object
+      properties:
+        slug: { type: string }
+        version: { type: integer }
+        name: { type: string }
+        premium: { type: boolean }
+        previewUrl: { type: [string, 'null'], format: uri }
+    TemplatePackage:
+      type: object
+      properties:
+        slug: { type: string }
+        version: { type: integer }
+        spec: { type: object, description: JSON do template (ver doc 04) }
+        signature: { type: string, description: Ed25519 base64 sobre o spec canônico }
+    JobCreate:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [analyze_photos, render_video, build_tour_360, reconstruct_3d] }
+        templateSlug: { type: string }
+        captureId: { type: string, format: uuid }
+        mediaIds:
+          type: array
+          maxItems: 60
+          items: { type: string, format: uuid }
+        params: { type: object, additionalProperties: true }
+    Job:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string }
+        status: { type: string, enum: [queued, running, retrying, succeeded, failed, canceled] }
+        progress: { type: number, minimum: 0, maximum: 1 }
+        etaSeconds: { type: [integer, 'null'] }
+        costEstimatedBrl: { type: number }
+        errorCode: { type: [string, 'null'] }
+        outputs:
+          type: array
+          items: { $ref: '#/components/schemas/Output' }
+        queuedAt: { type: string, format: date-time }
+        finishedAt: { type: [string, 'null'], format: date-time }
+    LocalVideoRegister:
+      type: object
+      required: [templateSlug, templateVersion, aspect, durationMs, sizeBytes, sha256]
+      properties:
+        templateSlug: { type: string }
+        templateVersion: { type: integer }
+        aspect: { type: string, enum: ['9:16', '16:9'] }
+        durationMs: { type: integer, minimum: 1000, maximum: 180000 }
+        sizeBytes: { type: integer, minimum: 1 }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        syntheticContent: { type: boolean, default: false }
+    Output:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [video_vertical, video_horizontal, thumbnail, tour_360, tour_3d, manifest] }
+        durationMs: { type: [integer, 'null'] }
+        sizeBytes: { type: [integer, 'null'] }
+        syntheticContent: { type: boolean }
+        watermark: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    CaptureCreate:
+      type: object
+      required: [deviceModel, hasLidar, frameCount]
+      properties:
+        deviceModel: { type: string, maxLength: 40 }
+        hasLidar: { type: boolean }
+        frameCount: { type: integer, minimum: 30, maximum: 4000 }
+        rooms:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string, maxLength: 40 }
+              frameCount: { type: integer }
+    Capture:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [created, uploading, uploaded, validating, needs_recapture, accepted, rejected] }
+        qualityReport:
+          type: object
+          properties:
+            coverage: { type: number }
+            blurryFrames: { type: integer }
+            roomsNeedingRecapture:
+              type: array
+              items:
+                type: object
+                properties:
+                  room: { type: string }
+                  hint: { type: string }
+        uploads:
+          type: array
+          items: { $ref: '#/components/schemas/UploadIntent' }
+    ShareLink:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        url: { type: string, format: uri }
+        expiresAt: { type: [string, 'null'], format: date-time }
+        maxViews: { type: [integer, 'null'] }
+    PublicShare:
+      type: object
+      properties:
+        kind: { type: string, enum: [video, tour_3d, tour_360] }
+        title: { type: string }
+        cityPublic: { type: [string, 'null'] }
+        syntheticContent: { type: boolean }
+        media:
+          type: object
+          properties:
+            url: { type: string, format: uri }
+            manifestUrl: { type: [string, 'null'], format: uri }
+            expiresAt: { type: string, format: date-time }

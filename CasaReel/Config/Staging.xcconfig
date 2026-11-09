@@ -1,0 +1,6 @@
+#include "Shared.xcconfig"
+
+APP_ENVIRONMENT = staging
+API_BASE_URL = https:/$()/api.staging.casareel.example/v1
+PRODUCT_BUNDLE_IDENTIFIER = br.com.casareel.app.staging
+INFOPLIST_KEY_CFBundleDisplayName = CasaReel Beta

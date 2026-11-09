@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.xcresult
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SwiftPM
+.build/
+.swiftpm/
+Packages/*/.build/
+
+# Secrets and local overrides (never commit)
+*.p8
+*.p12
+*.mobileprovision
+*.local.xcconfig
+.env
+.env.*
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output

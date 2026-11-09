@@ -1,0 +1,26 @@
+{
+  "sourceLanguage" : "pt-BR",
+  "strings" : {
+    "Bem-vindo ao CasaReel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome to CasaReel" } }
+      }
+    },
+    "Não foi possível iniciar o app" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The app couldn't start" } }
+      }
+    },
+    "Reinstale o aplicativo ou tente novamente mais tarde." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reinstall the app or try again later." } }
+      }
+    },
+    "Transforme as fotos do seu imóvel em um vídeo de apresentação." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Turn your property photos into a showcase video." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
