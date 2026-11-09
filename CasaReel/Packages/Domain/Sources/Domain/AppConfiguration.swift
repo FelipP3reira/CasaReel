@@ -11,17 +11,21 @@ public struct AppConfiguration: Sendable, Equatable {
     public enum InfoKey {
         public static let environment = "CREnvironment"
         public static let apiBaseURL = "CRAPIBaseURL"
+        public static let universalLinkHost = "CRUniversalLinkHost"
     }
 
     public let environment: Environment
     public let apiBaseURL: URL
+    /// Host whose `https://<host>/app/...` links open screens in the app.
+    public let universalLinkHost: String
 
-    public init(environment: Environment, apiBaseURL: URL) {
+    public init(environment: Environment, apiBaseURL: URL, universalLinkHost: String) {
         self.environment = environment
         self.apiBaseURL = apiBaseURL
+        self.universalLinkHost = universalLinkHost
     }
 
-    /// Reads and validates the configuration; only HTTPS base URLs are accepted.
+    /// Reads and validates the configuration; only HTTPS base URLs and bare host names are accepted.
     public init(infoDictionary: [String: Any]) throws(AppConfigurationError) {
         guard let rawEnvironment = infoDictionary[InfoKey.environment] as? String else {
             throw .missingValue(InfoKey.environment)
@@ -35,7 +39,13 @@ public struct AppConfiguration: Sendable, Equatable {
         guard let url = URL(string: rawURL), url.scheme == "https", url.host() != nil else {
             throw .invalidValue(InfoKey.apiBaseURL)
         }
-        self.init(environment: environment, apiBaseURL: url)
+        guard let host = infoDictionary[InfoKey.universalLinkHost] as? String else {
+            throw .missingValue(InfoKey.universalLinkHost)
+        }
+        guard host.wholeMatch(of: /[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+/) != nil else {
+            throw .invalidValue(InfoKey.universalLinkHost)
+        }
+        self.init(environment: environment, apiBaseURL: url, universalLinkHost: host)
     }
 }
 

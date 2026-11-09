@@ -1,24 +1,44 @@
 import DesignSystem
+import Domain
 import SwiftUI
 
-/// Placeholder home screen; replaced by the navigation shell in P02.
+/// Chooses between the sign-in flow and the tab shell, and handles incoming Universal Links.
 struct RootView: View {
     let environment: AppEnvironment
+    @State private var router = Router()
+    @State private var toasts = ToastCenter()
+
+    private var session: SessionStore { environment.session }
 
     var body: some View {
-        VStack(spacing: Spacing.medium) {
-            Image(systemName: "house.fill")
-                .font(.largeTitle)
-                .foregroundStyle(.tint)
-                .accessibilityHidden(true)
-            Text("Bem-vindo ao CasaReel")
-                .font(.title2.bold())
-            Text("Transforme as fotos do seu imóvel em um vídeo de apresentação.")
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        Group {
+            switch session.state {
+            case .signedOut, .revoked:
+                AuthPlaceholderView(isRevoked: session.state == .revoked) { session.signIn() }
+            case .signedIn:
+                MainTabView(router: router) {
+                    router.reset()
+                    session.signOut()
+                }
+            }
         }
-        .padding(Spacing.large)
+        .tint(DSColor.accent)
+        .toastHost(toasts)
+        .onOpenURL(perform: open)
+        .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+            if let url = activity.webpageURL { open(url) }
+        }
+    }
+
+    private func open(_ url: URL) {
+        let outcome = router.open(url, parser: environment.deepLinkParser, session: session.state)
+        switch outcome {
+        case .opened:
+            Log.navigation.info("Deep link opened")
+        case .rejectedInvalid, .rejectedSensitive, .rejectedNoSession:
+            Log.navigation.notice("Deep link rejected: \(String(describing: outcome), privacy: .public)")
+            toasts.show(ToastMessage("Não foi possível abrir este link.", style: .error))
+        }
     }
 }
 

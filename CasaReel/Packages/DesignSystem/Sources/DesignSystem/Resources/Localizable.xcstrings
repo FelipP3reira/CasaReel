@@ -1,0 +1,41 @@
+{
+  "sourceLanguage" : "pt-BR",
+  "strings" : {
+    "Campo obrigatório" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Required field" } }
+      }
+    },
+    "Carregando" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading" } }
+      }
+    },
+    "E-mail inválido" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid email" } }
+      }
+    },
+    "Progresso" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Progress" } }
+      }
+    },
+    "Tentar novamente" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try again" } }
+      }
+    },
+    "Texto muito curto" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text is too short" } }
+      }
+    },
+    "Toque para fechar" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap to dismiss" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

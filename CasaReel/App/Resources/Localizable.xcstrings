@@ -1,26 +1,316 @@
 {
-  "sourceLanguage" : "pt-BR",
-  "strings" : {
-    "Bem-vindo ao CasaReel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome to CasaReel" } }
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "Ajustes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
       }
     },
-    "Não foi possível iniciar o app" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The app couldn't start" } }
+    "Aqui você poderá gerenciar consentimentos, exportar e excluir seus dados.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Here you'll be able to manage consents and export or delete your data."
+          }
+        }
       }
     },
-    "Reinstale o aplicativo ou tente novamente mais tarde." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reinstall the app or try again later." } }
+    "As opções de assinatura aparecerão aqui.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscription options will appear here."
+          }
+        }
       }
     },
-    "Transforme as fotos do seu imóvel em um vídeo de apresentação." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Turn your property photos into a showcase video." } }
+    "Assinatura": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscription"
+          }
+        }
+      }
+    },
+    "Bem-vindo ao CasaReel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to CasaReel"
+          }
+        }
+      }
+    },
+    "Cadastre seu primeiro imóvel para criar um vídeo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add your first property to create a video."
+          }
+        }
+      }
+    },
+    "Como você quer ser chamado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How you want to be called"
+          }
+        }
+      }
+    },
+    "Conta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        }
+      }
+    },
+    "Continuar para o editor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue to editor"
+          }
+        }
+      }
+    },
+    "Criar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create"
+          }
+        }
+      }
+    },
+    "Editor de vídeo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video editor"
+          }
+        }
+      }
+    },
+    "Entrar (provisório)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in (temporary)"
+          }
+        }
+      }
+    },
+    "Escolha as fotos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose photos"
+          }
+        }
+      }
+    },
+    "Imóveis": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Properties"
+          }
+        }
+      }
+    },
+    "Imóvel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Property"
+          }
+        }
+      }
+    },
+    "Imóvel de exemplo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sample property"
+          }
+        }
+      }
+    },
+    "Nenhum imóvel ainda": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No properties yet"
+          }
+        }
+      }
+    },
+    "Nome de exibição": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display name"
+          }
+        }
+      }
+    },
+    "Não foi possível abrir este link.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This link couldn't be opened."
+          }
+        }
+      }
+    },
+    "Não foi possível iniciar o app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app couldn't start"
+          }
+        }
+      }
+    },
+    "O login estará disponível em breve.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign-in will be available soon."
+          }
+        }
+      }
+    },
+    "Os detalhes do imóvel aparecerão aqui.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Property details will appear here."
+          }
+        }
+      }
+    },
+    "Planos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plans"
+          }
+        }
+      }
+    },
+    "Privacidade": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        }
+      }
+    },
+    "Rascunho": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draft"
+          }
+        }
+      }
+    },
+    "Reinstale o aplicativo ou tente novamente mais tarde.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall the app or try again later."
+          }
+        }
+      }
+    },
+    "Sair": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out"
+          }
+        }
+      }
+    },
+    "Selecione de 5 a 40 fotos do imóvel para montar o vídeo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select 5 to 40 photos of the property to build the video."
+          }
+        }
+      }
+    },
+    "Sua sessão foi encerrada. Entre novamente.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session has ended. Please sign in again."
+          }
+        }
+      }
+    },
+    "Transforme as fotos do seu imóvel em um vídeo de apresentação.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn your property photos into a showcase video."
+          }
+        }
+      }
+    },
+    "Ver imóvel de exemplo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View sample property"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

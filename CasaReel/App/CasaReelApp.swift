@@ -1,5 +1,4 @@
 import Domain
-import OSLog
 import SwiftUI
 
 @main
@@ -10,8 +9,7 @@ struct CasaReelApp: App {
         let info = Bundle.main.infoDictionary ?? [:]
         environment = Result { () throws(AppConfigurationError) in try AppEnvironment.live(infoDictionary: info) }
         if case .failure(let error) = environment {
-            Logger(subsystem: "br.com.casareel.app", category: "bootstrap")
-                .error("Invalid app configuration: \(String(describing: error), privacy: .private)")
+            Log.bootstrap.error("Invalid app configuration: \(String(describing: error), privacy: .private)")
         }
     }
 

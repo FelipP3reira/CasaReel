@@ -1,8 +1,0 @@
-import CoreGraphics
-
-/// Spacing scale shared by every screen; expanded in P02.
-public enum Spacing {
-    public static let small: CGFloat = 8
-    public static let medium: CGFloat = 16
-    public static let large: CGFloat = 24
-}

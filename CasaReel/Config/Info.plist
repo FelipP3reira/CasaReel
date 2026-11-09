@@ -6,6 +6,8 @@
 	<string>$(APP_ENVIRONMENT)</string>
 	<key>CRAPIBaseURL</key>
 	<string>$(API_BASE_URL)</string>
+	<key>CRUniversalLinkHost</key>
+	<string>$(UNIVERSAL_LINK_HOST)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

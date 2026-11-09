@@ -2,3 +2,5 @@
 
 APP_ENVIRONMENT = release
 API_BASE_URL = https:/$()/api.casareel.example/v1
+UNIVERSAL_LINK_HOST = casareel.example
+
