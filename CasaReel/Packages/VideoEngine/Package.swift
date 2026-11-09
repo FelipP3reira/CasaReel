@@ -15,11 +15,15 @@ let package = Package(
             name: "VideoEngine",
             dependencies: [
                 .product(name: "Domain", package: "Domain"),
-            ]
+            ],
+            resources: [.copy("Resources/Templates")]
         ),
         .testTarget(
             name: "VideoEngineTests",
-            dependencies: ["VideoEngine"]
+            dependencies: [
+                "VideoEngine",
+                .product(name: "Domain", package: "Domain"),
+            ]
         ),
     ]
 )

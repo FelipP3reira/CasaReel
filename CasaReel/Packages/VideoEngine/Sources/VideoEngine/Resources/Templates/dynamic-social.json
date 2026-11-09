@@ -1,0 +1,22 @@
+{
+  "slug": "dynamic-social",
+  "version": 1,
+  "aspect": ["9:16"],
+  "fps": 30,
+  "scenes": [
+    { "source": "photo", "duration_ms": 1500, "focus": "saliency",
+      "motion": { "type": "kenburns", "from": [0.0, 0.0, 1.05], "to": [0.0, 0.0, 1.25], "easing": "easeOut" },
+      "transition_out": { "type": "cut", "duration_ms": 0 },
+      "caption": { "slot": "room_label" } },
+    { "source": "photo", "duration_ms": 1500, "focus": "saliency",
+      "motion": { "type": "kenburns", "from": [0.5, 0.0, 1.2], "to": [-0.5, 0.0, 1.2], "easing": "linear" },
+      "transition_out": { "type": "slide", "duration_ms": 250 },
+      "caption": { "slot": "room_label" } },
+    { "source": "photo", "duration_ms": 1500, "focus": "center",
+      "motion": { "type": "kenburns", "from": [0.0, 0.0, 1.3], "to": [0.0, 0.0, 1.05], "easing": "easeIn" },
+      "transition_out": { "type": "cut", "duration_ms": 0 },
+      "caption": { "slot": "room_label" } }
+  ],
+  "audio": { "track_id": null, "duck_voiceover": false, "fade_out_ms": 800 },
+  "watermark": { "enabled": true, "position": "bottom_right" }
+}

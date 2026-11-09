@@ -1,0 +1,18 @@
+{
+  "slug": "cinematic-soft",
+  "version": 1,
+  "aspect": ["9:16", "16:9"],
+  "fps": 30,
+  "scenes": [
+    { "source": "photo", "duration_ms": 4500, "focus": "saliency",
+      "motion": { "type": "kenburns", "from": [-0.6, 0.0, 1.15], "to": [0.6, 0.0, 1.15], "easing": "easeInOut" },
+      "transition_out": { "type": "dip_to_black", "duration_ms": 900 },
+      "caption": { "slot": "room_label" } },
+    { "source": "photo", "duration_ms": 4500, "focus": "saliency",
+      "motion": { "type": "kenburns", "from": [0.0, -0.5, 1.2], "to": [0.0, 0.5, 1.08], "easing": "easeInOut" },
+      "transition_out": { "type": "dip_to_black", "duration_ms": 900 },
+      "caption": { "slot": "room_label" } }
+  ],
+  "audio": { "track_id": null, "duck_voiceover": false, "fade_out_ms": 2500 },
+  "watermark": { "enabled": true, "position": "bottom_right" }
+}

@@ -56,6 +56,8 @@ struct AppEnvironment: Sendable {
             store: KeychainStore(service: "br.com.casareel.app.device")
         )
         let apiClient = URLSessionAPIClient(configuration: clientConfiguration, pinningPolicy: pinning, tokens: tokens, attest: attest)
+        // Bundled templates ship inside the signed app; a broken bundle is a configuration error, not a crash.
+        guard let templates = try? TemplateLibrary() else { throw .invalidValue("templates") }
 
         return AppEnvironment(
             configuration: configuration,
@@ -66,7 +68,7 @@ struct AppEnvironment: Sendable {
             apiClient: apiClient,
             photoPreparer: PhotoPreparationService(),
             photoAnalyzer: PhotoAnalysisService(),
-            videoRenderer: AVFoundationVideoRenderer(),
+            videoRenderer: VideoEngineRenderer(library: templates, keepAwake: keepScreenAwake),
             localStore: SwiftDataLocalStore()
         )
     }
@@ -79,10 +81,15 @@ struct AppEnvironment: Sendable {
         }
     }
 
+    /// Keeps the screen on while a video renders (renders stop when the app is suspended).
+    private static let keepScreenAwake: @Sendable (Bool) async -> Void = { on in
+        await MainActor.run { UIApplication.shared.isIdleTimerDisabled = on }
+    }
+
     /// Photos staged or prepared by a previous run (app killed mid-selection) are never reused: delete them.
     private static func purgeLeftoverPhotoFiles() {
         let temporary = FileManager.default.temporaryDirectory
-        for folder in ["CasaReelPhotos", "CasaReelInbox"] {
+        for folder in ["CasaReelPhotos", "CasaReelInbox", "CasaReelRenders"] {
             try? FileManager.default.removeItem(at: temporary.appending(path: folder, directoryHint: .isDirectory))
         }
     }
