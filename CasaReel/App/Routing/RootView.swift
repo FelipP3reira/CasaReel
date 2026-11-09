@@ -19,11 +19,13 @@ struct RootView: View {
                 MainTabView(router: router) {
                     router.reset()
                     session.signOut()
+                    Task { await environment.tokens.clear() }
                 }
             }
         }
         .tint(DSColor.accent)
         .toastHost(toasts)
+        .task { await environment.observeSessionEvents() }
         .onOpenURL(perform: open)
         .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
             if let url = activity.webpageURL { open(url) }

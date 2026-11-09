@@ -1,20 +1,20 @@
 import Domain
+import Foundation
 import MediaKit
 import Networking
 import Persistence
 import SecurityKit
+import UIKit
 import VideoEngine
 
 /// Composition root: the only place that knows the concrete infrastructure types.
-/// `TokenManager` and `AppAttestClient` are wired in P04, once `Networking` implements their server calls.
 struct AppEnvironment: Sendable {
     let configuration: AppConfiguration
     let session: SessionStore
-    let secureStore: any SecureStore
-    /// Pins for the API host, shared with the `PinningDelegate` of every API `URLSession`.
+    let tokens: TokenManager
+    /// Pins for the API host, shared by the `PinningDelegate` of every API `URLSession`.
     let pinningPolicy: PinningPolicy
     let configVerifier: SignedConfigVerifier
-    let integritySignals: IntegritySignals
     let apiClient: any APIClient
     let mediaProcessor: any MediaProcessor
     let videoRenderer: any VideoRenderer
@@ -33,20 +33,53 @@ struct AppEnvironment: Sendable {
         } catch {
             throw .invalidValue(AppConfiguration.InfoKey.configSigningPublicKey)
         }
+        let pinning = PinningPolicy(pinnedHosts: [configuration.apiBaseURL.host() ?? ""], pins: configuration.publicKeyPins)
+        let integrity = IntegritySignals()
+        // Collected once: the signals don't change while the process runs.
+        let deviceRisk = IntegritySignals.headerValue(for: integrity.collect())
+        let clientConfiguration = APIClientConfiguration(
+            baseURL: configuration.apiBaseURL,
+            userAgent: userAgent(infoDictionary: infoDictionary),
+            deviceRisk: { deviceRisk }
+        )
+
+        // Token refresh and App Attest registration use a client without session or attestation,
+        // so a 401 or an attestation can never recurse into themselves.
+        let bareClient = URLSessionAPIClient(configuration: clientConfiguration, pinningPolicy: pinning, tokens: nil, attest: nil)
+        let tokens = TokenManager(store: KeychainStore(), refresher: APITokenRefresher(unauthenticatedClient: bareClient))
+        let attest = AppAttestClient(
+            provider: DeviceAttestProvider(),
+            server: APIAttestServer(client: bareClient),
+            // Separate service: the attested key belongs to the device and survives sign-out/revocation.
+            store: KeychainStore(service: "br.com.casareel.app.device")
+        )
+        let apiClient = URLSessionAPIClient(configuration: clientConfiguration, pinningPolicy: pinning, tokens: tokens, attest: attest)
+
         return AppEnvironment(
             configuration: configuration,
             session: SessionStore(),
-            secureStore: KeychainStore(),
-            pinningPolicy: PinningPolicy(
-                pinnedHosts: [configuration.apiBaseURL.host() ?? ""],
-                pins: configuration.publicKeyPins
-            ),
+            tokens: tokens,
+            pinningPolicy: pinning,
             configVerifier: verifier,
-            integritySignals: IntegritySignals(),
-            apiClient: URLSessionAPIClient(),
+            apiClient: apiClient,
             mediaProcessor: DefaultMediaProcessor(),
             videoRenderer: AVFoundationVideoRenderer(),
             localStore: SwiftDataLocalStore()
         )
+    }
+
+    /// Mirrors server-side revocations into the global session state; runs for the app's lifetime.
+    @MainActor
+    func observeSessionEvents() async {
+        for await event in tokens.events where event == .revoked {
+            session.revoke()
+        }
+    }
+
+    @MainActor
+    private static func userAgent(infoDictionary: [String: Any]) -> String {
+        let version = infoDictionary["CFBundleShortVersionString"] as? String ?? "0"
+        let build = infoDictionary["CFBundleVersion"] as? String ?? "0"
+        return "CasaReel-iOS/\(version) (\(build); iOS \(UIDevice.current.systemVersion))"
     }
 }

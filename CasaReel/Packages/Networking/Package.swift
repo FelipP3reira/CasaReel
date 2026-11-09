@@ -21,7 +21,11 @@ let package = Package(
         ),
         .testTarget(
             name: "NetworkingTests",
-            dependencies: ["Networking"]
+            dependencies: [
+                "Networking",
+                .product(name: "Domain", package: "Domain"),
+                .product(name: "SecurityKit", package: "SecurityKit"),
+            ]
         ),
     ]
 )

@@ -18,6 +18,11 @@ public struct AttestHeader: Sendable, Equatable {
     public let name: String
     public let value: String
 
+    public init(name: String, value: String) {
+        self.name = name
+        self.value = value
+    }
+
     static func unavailable(_ reason: AttestUnavailableReason) -> AttestHeader {
         AttestHeader(name: statusName, value: reason.rawValue)
     }
