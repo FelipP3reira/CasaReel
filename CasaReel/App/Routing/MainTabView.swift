@@ -1,9 +1,11 @@
 import Domain
+import FeaturePhotos
 import SwiftUI
 
 /// Tab shell shown after sign-in; each tab owns a typed NavigationStack driven by the Router.
 struct MainTabView: View {
     @Bindable var router: Router
+    let photoSelection: PhotoSelectionModel
     let onSignOut: () -> Void
 
     var body: some View {
@@ -12,7 +14,7 @@ struct MainTabView: View {
                 .tabItem { Label("Imóveis", systemImage: "house") }
                 .tag(AppTab.properties)
 
-            stack(for: .create) { PhotoPickerScreen(router: router) }
+            stack(for: .create) { PhotoPickerScreen(router: router, selection: photoSelection) }
                 .tabItem { Label("Criar", systemImage: "plus.circle") }
                 .tag(AppTab.create)
 
@@ -28,7 +30,7 @@ struct MainTabView: View {
             set: { router.setPath($0, for: tab) }
         )) {
             root().navigationDestination(for: AppRoute.self) { route in
-                RouteDestination(route: route, router: router, onSignOut: onSignOut)
+                RouteDestination(route: route, router: router, photoSelection: photoSelection, onSignOut: onSignOut)
             }
         }
     }
@@ -38,6 +40,7 @@ struct MainTabView: View {
 struct RouteDestination: View {
     let route: AppRoute
     let router: Router
+    let photoSelection: PhotoSelectionModel
     let onSignOut: () -> Void
 
     var body: some View {
@@ -49,9 +52,9 @@ struct RouteDestination: View {
         case .propertyDetail(let id):
             PropertyDetailScreen(id: id)
         case .photoPicker:
-            PhotoPickerScreen(router: router)
+            PhotoPickerScreen(router: router, selection: photoSelection)
         case .videoEditor:
-            VideoEditorScreen()
+            VideoEditorScreen(photoCount: photoSelection.readyPhotos.count)
         case .subscription:
             SubscriptionScreen()
         case .privacy:

@@ -16,7 +16,7 @@ struct AppEnvironment: Sendable {
     let pinningPolicy: PinningPolicy
     let configVerifier: SignedConfigVerifier
     let apiClient: any APIClient
-    let mediaProcessor: any MediaProcessor
+    let photoPreparer: any PhotoPreparing
     let videoRenderer: any VideoRenderer
     let localStore: any LocalStore
 
@@ -27,6 +27,7 @@ struct AppEnvironment: Sendable {
     @MainActor
     static func live(infoDictionary: [String: Any]) throws(AppConfigurationError) -> AppEnvironment {
         let configuration = try AppConfiguration(infoDictionary: infoDictionary)
+        purgeLeftoverPhotoFiles()
         let verifier: SignedConfigVerifier
         do {
             verifier = try SignedConfigVerifier(publicKey: configuration.configSigningPublicKey)
@@ -62,7 +63,7 @@ struct AppEnvironment: Sendable {
             pinningPolicy: pinning,
             configVerifier: verifier,
             apiClient: apiClient,
-            mediaProcessor: DefaultMediaProcessor(),
+            photoPreparer: PhotoPreparationService(),
             videoRenderer: AVFoundationVideoRenderer(),
             localStore: SwiftDataLocalStore()
         )
@@ -73,6 +74,14 @@ struct AppEnvironment: Sendable {
     func observeSessionEvents() async {
         for await event in tokens.events where event == .revoked {
             session.revoke()
+        }
+    }
+
+    /// Photos staged or prepared by a previous run (app killed mid-selection) are never reused: delete them.
+    private static func purgeLeftoverPhotoFiles() {
+        let temporary = FileManager.default.temporaryDirectory
+        for folder in ["CasaReelPhotos", "CasaReelInbox"] {
+            try? FileManager.default.removeItem(at: temporary.appending(path: folder, directoryHint: .isDirectory))
         }
     }
 

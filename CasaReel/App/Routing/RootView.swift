@@ -1,5 +1,6 @@
 import DesignSystem
 import Domain
+import FeaturePhotos
 import SwiftUI
 
 /// Chooses between the sign-in flow and the tab shell, and handles incoming Universal Links.
@@ -7,6 +8,13 @@ struct RootView: View {
     let environment: AppEnvironment
     @State private var router = Router()
     @State private var toasts = ToastCenter()
+    /// Lives above the tabs so the editor (P10/P11) can use the photos picked in "Criar".
+    @State private var photoSelection: PhotoSelectionModel
+
+    init(environment: AppEnvironment) {
+        self.environment = environment
+        _photoSelection = State(initialValue: PhotoSelectionModel(preparer: environment.photoPreparer))
+    }
 
     private var session: SessionStore { environment.session }
 
@@ -16,8 +24,9 @@ struct RootView: View {
             case .signedOut, .revoked:
                 AuthPlaceholderView(isRevoked: session.state == .revoked) { session.signIn() }
             case .signedIn:
-                MainTabView(router: router) {
+                MainTabView(router: router, photoSelection: photoSelection) {
                     router.reset()
+                    photoSelection.reset()
                     session.signOut()
                     Task { await environment.tokens.clear() }
                 }

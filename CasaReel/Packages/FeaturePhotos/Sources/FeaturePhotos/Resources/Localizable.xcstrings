@@ -1,0 +1,196 @@
+{
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "%lld de %lld fotos (mínimo %lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld photos (minimum %lld)"
+          }
+        }
+      }
+    },
+    "%lld foto(s) não puderam ser usadas. Toque para remover.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld photo(s) couldn't be used. Tap to remove."
+          }
+        }
+      }
+    },
+    "Adicionar fotos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add photos"
+          }
+        }
+      }
+    },
+    "Arquivo maior que 25 MB.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File larger than 25 MB."
+          }
+        }
+      }
+    },
+    "Borrar rostos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blur faces"
+          }
+        }
+      }
+    },
+    "Continuar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "Disponível em breve": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon"
+          }
+        }
+      }
+    },
+    "Formato não suportado. Use JPEG, HEIC ou PNG.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported format. Use JPEG, HEIC or PNG."
+          }
+        }
+      }
+    },
+    "Foto pronta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo ready"
+          }
+        }
+      }
+    },
+    "Foto pronta, possível repetição": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo ready, possible duplicate"
+          }
+        }
+      }
+    },
+    "Foto sendo preparada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing photo"
+          }
+        }
+      }
+    },
+    "Imagem grande demais (mais de 50 megapixels).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image too large (over 50 megapixels)."
+          }
+        }
+      }
+    },
+    "Não foi possível ler esta foto.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This photo couldn't be read."
+          }
+        }
+      }
+    },
+    "Parecida": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Similar"
+          }
+        }
+      }
+    },
+    "Preparando fotos…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing photos…"
+          }
+        }
+      }
+    },
+    "Removemos localização e metadados das fotos antes de enviar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We remove location and metadata from photos before uploading."
+          }
+        }
+      }
+    },
+    "Remover foto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove photo"
+          }
+        }
+      }
+    },
+    "Repetida": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate"
+          }
+        }
+      }
+    },
+    "Resolução baixa: mínimo de 1280 px no lado maior.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low resolution: at least 1280 px on the longer side."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

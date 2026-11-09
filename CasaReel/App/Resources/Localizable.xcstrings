@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "pt-BR",
   "strings": {
+    "%lld fotos prontas. O vídeo será montado aqui.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld photos ready. The video will be built here."
+          }
+        }
+      }
+    },
     "Ajustes": {
       "localizations": {
         "en": {
@@ -77,16 +87,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Account"
-          }
-        }
-      }
-    },
-    "Continuar para o editor": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue to editor"
           }
         }
       }
@@ -267,16 +267,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sign out"
-          }
-        }
-      }
-    },
-    "Selecione de 5 a 40 fotos do imóvel para montar o vídeo.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select 5 to 40 photos of the property to build the video."
           }
         }
       }
