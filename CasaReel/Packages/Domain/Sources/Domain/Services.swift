@@ -1,8 +1,6 @@
 // Service contracts implemented by the infrastructure packages.
-// They stay empty until the corresponding prompt (P03, P04, P06, P07, P10) defines their API.
-
-/// Secure storage for secrets (implemented by `SecurityKit` on top of the Keychain).
-public protocol SecureStore: Sendable {}
+// They stay empty until the corresponding prompt (P04, P06, P07, P10) defines their API.
+// Security contracts live in `Security/`.
 
 /// Typed HTTP client for the CasaReel API (implemented by `Networking`).
 public protocol APIClient: Sendable {}

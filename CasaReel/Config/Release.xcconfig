@@ -4,3 +4,8 @@ APP_ENVIRONMENT = release
 API_BASE_URL = https:/$()/api.casareel.example/v1
 UNIVERSAL_LINK_HOST = casareel.example
 
+// PLACEHOLDERS — replace with the real SPKI pins (current, backup) of the API host before shipping.
+// Base64 may contain "//", which xcconfig treats as a comment: write it as "/$()/".
+PUBLIC_KEY_PINS = BmAioErPuQ+9U95TZuUNYrG4S3tBwqIFqoWZgA9eD3o=,GpTPQGbnUGIdap6Lo+hoQtW827QrGJlu3EvqodcW3Rk=
+// Ed25519 public key that verifies signed remote config. The private key never enters the repo.
+CONFIG_SIGNING_PUBLIC_KEY = j5dfS1nPahewWH2Oqr2x3QNeK37xUoWtQMQrllQI2Oo=

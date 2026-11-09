@@ -6,3 +6,8 @@ UNIVERSAL_LINK_HOST = staging.casareel.example
 PRODUCT_BUNDLE_IDENTIFIER = br.com.casareel.app.staging
 INFOPLIST_KEY_CFBundleDisplayName = CasaReel Beta
 
+// PLACEHOLDERS — replace with the real SPKI pins (current, backup) of the API host before shipping.
+// Base64 may contain "//", which xcconfig treats as a comment: write it as "/$()/".
+PUBLIC_KEY_PINS = 4hBJ+rRD6HnanscM10brhvsmis9wjQdLlRQQT7TD6AM=,rDddeMwfq/dFy4a27mkos76eEGfwAgwy5QGlLp4OnCk=
+// Ed25519 public key that verifies signed remote config. The private key never enters the repo.
+CONFIG_SIGNING_PUBLIC_KEY = qGSp1PBj2iz2kei2/+phM2RxSaTslH5vfE76YaZj6W0=

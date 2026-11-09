@@ -19,7 +19,10 @@ let package = Package(
         ),
         .testTarget(
             name: "SecurityKitTests",
-            dependencies: ["SecurityKit"]
+            dependencies: [
+                "SecurityKit",
+                .product(name: "Domain", package: "Domain"),
+            ]
         ),
     ]
 )

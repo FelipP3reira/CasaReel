@@ -8,6 +8,10 @@
 	<string>$(API_BASE_URL)</string>
 	<key>CRUniversalLinkHost</key>
 	<string>$(UNIVERSAL_LINK_HOST)</string>
+	<key>CRPublicKeyPins</key>
+	<string>$(PUBLIC_KEY_PINS)</string>
+	<key>CRConfigSigningPublicKey</key>
+	<string>$(CONFIG_SIGNING_PUBLIC_KEY)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
