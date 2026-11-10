@@ -2,6 +2,11 @@
 
 > Registro curto de cada sessão de trabalho com o assistente, para não perder contexto entre conversas. Mais recente no topo.
 
+## 2026-11-10 (parte 5): Walk 3D no aparelho, etapa 2 (treino em Metal)
+- `Walk3DKit/Training`: `TrainingShaders` (preprocess, rasterizeForward, rasterizeBackward com soma por grupo SIMD antes do atômico, backwardStep com Adam), `TrainingSession` (buffers e um passo), `TileBinner` (ordenação por contagem + blocos, ponteiros brutos), `GaussianModel` (início, densificação, exportação), `TrainingView`, `SplatTrainer` (API pública, cronograma, calor, saída).
+- Verificado: Walk3DKit 49/49, incluindo conferência dos gradientes por diferenças finitas (cor/opacidade/x < 1%; tamanho/rotação/z 4–7% por causa do corte de alfa 1/255), perda que cai num quadro e treino de ponta a ponta numa captura sintética. App compila sem warnings.
+- Tempo no simulador (Release): ~80 ms por passo com 100 mil Gaussians (distribuição na CPU 15–40 ms, GPU ~50 ms). **Falta medir no iPhone 15**; se a distribuição pesar, passar a ordenação para a GPU (etapa 4).
+
 ## 2026-11-10 (parte 4): Walk 3D 100% no aparelho, etapa 1 (captura ARKit)
 - Decisão do dono: **nada de mandar para o Mac** para gerar o 3D. Captura e treino rodam no iPhone, sem servidor. Vídeos antigos da galeria deixam de servir (não têm pose). Plano em 4 etapas em `design-walkthrough.md` §9.
 - `Walk3DKit/Capture`: `ARSceneCapture` (ARKit sem LiDAR, quadros-chave a cada ~12 cm/~8°, até 240, 960 px, JPG sem metadados), `CaptureManifest` (`capture.json` com intrínsecos e pose OpenCV, validado na leitura), `KeyframeSelector` e `PointCloudAccumulator` (`points.bin`).
