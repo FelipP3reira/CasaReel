@@ -560,6 +560,26 @@
           }
         }
       }
+    },
+    "Walk 3D": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D Walk"
+          }
+        }
+      }
+    },
+    "A câmera entra e anda pelos cômodos, com profundidade 3D.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera walks into each room with 3D depth."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

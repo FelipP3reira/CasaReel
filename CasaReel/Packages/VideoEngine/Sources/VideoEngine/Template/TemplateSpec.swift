@@ -12,6 +12,8 @@ public struct TemplateSpec: Codable, Sendable, Equatable {
         public enum Kind: String, Codable, Sendable {
             case kenburns
             case `static`
+            /// Ken Burns crop plus depth parallax: nearer parts of the photo grow faster, like walking in.
+            case walk
         }
 
         public let type: Kind
@@ -19,6 +21,10 @@ public struct TemplateSpec: Codable, Sendable, Equatable {
         public let from: [Double]
         public let to: [Double]
         public let easing: Easing
+        /// `walk` only: extra zoom of the nearest layer at the end of the scene (0.2 = 20 %). Defaults to `defaultParallax`.
+        public var parallax: Double? = nil
+
+        public static let defaultParallax = 0.2
     }
 
     public struct Transition: Codable, Sendable, Equatable {
@@ -27,6 +33,8 @@ public struct TemplateSpec: Codable, Sendable, Equatable {
             case crossfade
             case dipToBlack = "dip_to_black"
             case slide
+            /// Keeps pushing into the outgoing photo while the next one arrives already moving.
+            case walkThrough = "walk_through"
         }
 
         public let type: Kind
@@ -102,6 +110,8 @@ public enum TemplateLimits {
     public static let fpsRange = 24...60
     public static let scaleRange = 1.0...2.0
     public static let offsetRange = -1.0...1.0
+    /// Beyond ~30 % the stretched edges between depth layers become visible.
+    public static let parallaxRange = 0.0...0.3
     public static let maxTransitionMs = 2_000
     public static let maxFadeOutMs = 5_000
 }
@@ -138,6 +148,9 @@ extension TemplateSpec {
                       TemplateLimits.offsetRange.contains(vector[0]), TemplateLimits.offsetRange.contains(vector[1]),
                       TemplateLimits.scaleRange.contains(vector[2])
                 else { throw .invalid("scenes[\(index)].motion") }
+            }
+            if let parallax = scene.motion.parallax {
+                guard parallax.isFinite, TemplateLimits.parallaxRange.contains(parallax) else { throw .invalid("scenes[\(index)].motion") }
             }
             if let transition = scene.transitionOut {
                 let limit = min(TemplateLimits.maxTransitionMs, scene.durationMs / 2)

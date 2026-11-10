@@ -12,6 +12,8 @@ public enum AppRoute: Hashable, Sendable {
     case propertyDetail(id: UUID)
     case photoPicker
     case videoEditor
+    /// Real 3D walk-through from the host's photos and videos (reconstructed on their Mac).
+    case walk3D
     case subscription
     case privacy
     case settings
@@ -21,7 +23,7 @@ public enum AppRoute: Hashable, Sendable {
         switch self {
         case .auth: nil
         case .propertyList, .propertyDetail: .properties
-        case .photoPicker, .videoEditor: .create
+        case .photoPicker, .videoEditor, .walk3D: .create
         case .subscription, .privacy, .settings: .account
         }
     }
@@ -31,7 +33,7 @@ public enum AppRoute: Hashable, Sendable {
     public var isDeepLinkable: Bool {
         switch self {
         case .propertyList, .propertyDetail, .subscription: true
-        case .auth, .photoPicker, .videoEditor, .privacy, .settings: false
+        case .auth, .photoPicker, .videoEditor, .walk3D, .privacy, .settings: false
         }
     }
 }

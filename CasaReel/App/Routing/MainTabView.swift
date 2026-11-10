@@ -1,5 +1,6 @@
 import Domain
 import FeaturePhotos
+import FeatureWalk3D
 import SwiftUI
 
 /// Tab shell shown after sign-in; each tab owns a typed NavigationStack driven by the Router.
@@ -60,6 +61,8 @@ struct RouteDestination: View {
             PhotoPickerScreen(router: router, selection: photoSelection, editor: editor, environment: environment)
         case .videoEditor:
             VideoEditorScreen(router: router, editor: editor)
+        case .walk3D:
+            Walk3DScreen()
         case .subscription:
             SubscriptionScreen()
         case .privacy:

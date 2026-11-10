@@ -16,7 +16,7 @@ public struct TemplatePackage: Codable, Sendable {
 
 /// Bundled templates are trusted as part of the signed app; downloaded ones must carry a valid signature.
 public struct TemplateLibrary: Sendable {
-    public static let bundledSlugs = ["classic-clean", "cinematic-soft", "dynamic-social"]
+    public static let bundledSlugs = ["classic-clean", "cinematic-soft", "dynamic-social", "walk-tour"]
 
     public private(set) var specs: [TemplateSpec]
     private let verificationKey: Curve25519.Signing.PublicKey?

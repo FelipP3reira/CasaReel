@@ -35,15 +35,22 @@ public final class VideoEngineRenderer: VideoRenderer {
     /// One Metal-backed context for every frame of every render.
     private let context = CIContext(options: [.cacheIntermediates: false, .outputPremultiplied: true])
     private let writerOptions: VideoWriter.Options
+    private let depthEstimator: (any DepthEstimating)?
 
-    /// - Parameter keepAwake: called with `true`/`false` around a render (the app disables the idle timer).
+    /// - Parameters:
+    ///   - keepAwake: called with `true`/`false` around a render (the app disables the idle timer).
+    ///   - depthEstimator: used by "walk" scenes; without it they fall back to a generic room depth.
     public convenience init(
         library: TemplateLibrary,
         thermal: any ThermalMonitoring = SystemThermalMonitor(),
         outputDirectory: URL = FileManager.default.temporaryDirectory.appending(path: "CasaReelRenders", directoryHint: .isDirectory),
+        depthEstimator: (any DepthEstimating)? = nil,
         keepAwake: @escaping @Sendable (Bool) async -> Void = { _ in }
     ) {
-        self.init(library: library, thermal: thermal, outputDirectory: outputDirectory, keepAwake: keepAwake, writerOptions: VideoWriter.Options())
+        self.init(
+            library: library, thermal: thermal, outputDirectory: outputDirectory, keepAwake: keepAwake,
+            writerOptions: VideoWriter.Options(), depthEstimator: depthEstimator
+        )
     }
 
     init(
@@ -51,8 +58,10 @@ public final class VideoEngineRenderer: VideoRenderer {
         thermal: any ThermalMonitoring,
         outputDirectory: URL,
         keepAwake: @escaping @Sendable (Bool) async -> Void,
-        writerOptions: VideoWriter.Options
+        writerOptions: VideoWriter.Options,
+        depthEstimator: (any DepthEstimating)? = nil
     ) {
+        self.depthEstimator = depthEstimator
         self.writerOptions = writerOptions
         self.library = library
         self.templates = library.specs.map(\.info)
@@ -125,7 +134,7 @@ public final class VideoEngineRenderer: VideoRenderer {
         let renderer = FrameRenderer(
             timeline: timeline, photoURLs: request.photos.map(\.fileURL), outputSize: size, context: context,
             title: request.title, closingText: request.closingText, watermark: request.watermark,
-            watermarkPosition: spec.watermark?.position ?? .bottomRight
+            watermarkPosition: spec.watermark?.position ?? .bottomRight, depthEstimator: depthEstimator
         )
 
         await keepAwake(true)

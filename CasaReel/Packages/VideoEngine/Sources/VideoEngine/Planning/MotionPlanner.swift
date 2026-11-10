@@ -21,6 +21,8 @@ struct MotionPlanner {
         let from: CGRect
         let to: CGRect
         let easing: TemplateSpec.Easing
+        /// Extra zoom of the nearest depth layer at the end of the scene; 0 means a flat photo.
+        var parallax: Double = 0
 
         func crop(at progress: Double) -> CGRect {
             let t = easing.apply(progress)
@@ -47,7 +49,8 @@ struct MotionPlanner {
         let isStatic = motion.type == .static
         let from = crop(base: base, vector: motion.from, focus: focus, faces: faces)
         let to = isStatic ? from : crop(base: base, vector: motion.to, focus: focus, faces: faces)
-        return Plan(from: from, to: to, easing: motion.easing)
+        let parallax = motion.type == .walk ? motion.parallax ?? TemplateSpec.Motion.defaultParallax : 0
+        return Plan(from: from, to: to, easing: motion.easing, parallax: parallax)
     }
 
     static func crop(base: CGSize, vector: [Double], focus: CGRect, faces: [CGRect]) -> CGRect {

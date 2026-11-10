@@ -56,17 +56,27 @@ final class FrameRenderer {
     private let closing: CIImage?
     private let watermark: CIImage?
     private let watermarkPosition: TemplateSpec.Watermark.Position
-    private var cache: [Int: CIImage] = [:]
+    private let depthEstimator: (any DepthEstimating)?
+    private var cache: [Int: LoadedPhoto] = [:]
+
+    private struct LoadedPhoto {
+        let image: CIImage
+        let cgImage: CGImage
+        /// Estimated once, on the first "walk" frame that needs it.
+        var depth: CIImage?
+    }
 
     static let fadeMs = 400.0
     static let titleMs = 2_500.0
 
     init(
         timeline: SceneTimeline, photoURLs: [URL], outputSize: CGSize, context: CIContext,
-        title: String?, closingText: String? = nil, watermark: Bool, watermarkPosition: TemplateSpec.Watermark.Position
+        title: String?, closingText: String? = nil, watermark: Bool, watermarkPosition: TemplateSpec.Watermark.Position,
+        depthEstimator: (any DepthEstimating)? = nil
     ) {
         self.timeline = timeline
         self.photoURLs = photoURLs
+        self.depthEstimator = depthEstimator
         self.outputSize = outputSize
         self.context = context
         self.watermarkPosition = watermarkPosition
@@ -121,17 +131,33 @@ final class FrameRenderer {
 
     private func photoLayer(_ index: Int, progress: Double) throws(RenderError) -> CIImage {
         let entry = timeline.entries[index]
-        let photo = try source(for: entry.photoIndex)
+        let photo = try source(for: entry.photoIndex).image
         let crop = entry.plan.crop(at: progress)
         let width = photo.extent.width, height = photo.extent.height
         // Normalized top-left crop → Core Image pixels (bottom-left origin).
         let pixels = CGRect(x: crop.minX * width, y: (1 - crop.maxY) * height, width: crop.width * width, height: crop.height * height)
         let transform = CGAffineTransform(translationX: -pixels.minX, y: -pixels.minY)
             .concatenating(CGAffineTransform(scaleX: outputSize.width / pixels.width, y: outputSize.height / pixels.height))
-        return photo.clampedToExtent().transformed(by: transform).cropped(to: extent)
+        let placed = photo.clampedToExtent().transformed(by: transform)
+        guard entry.plan.parallax > 0 else { return placed.cropped(to: extent) }
+        let depth = depthMap(for: entry.photoIndex, heading: CGPoint(x: entry.plan.to.midX, y: entry.plan.to.midY))
+        return WalkCompositor.compose(
+            photo: placed, depth: depth.clampedToExtent().transformed(by: transform),
+            progress: entry.plan.easing.apply(progress), parallax: entry.plan.parallax, extent: extent
+        )
     }
 
-    private func source(for photoIndex: Int) throws(RenderError) -> CIImage {
+    /// The estimator's map when it works, otherwise a generic room shape centered where the camera heads.
+    private func depthMap(for photoIndex: Int, heading: CGPoint) -> CIImage {
+        guard let loaded = cache[photoIndex] else { return CIImage.empty() }
+        if let depth = loaded.depth { return depth }
+        let depth = depthEstimator?.depthMap(for: loaded.cgImage).map { WalkCompositor.depth(from: $0, over: loaded.image.extent) }
+            ?? WalkCompositor.fallbackDepth(over: loaded.image.extent, vanishingPoint: heading)
+        cache[photoIndex]?.depth = depth
+        return depth
+    }
+
+    private func source(for photoIndex: Int) throws(RenderError) -> LoadedPhoto {
         if let cached = cache[photoIndex] { return cached }
         guard photoURLs.indices.contains(photoIndex) else { throw .unreadablePhoto }
         // Enough pixels for a 1.6× zoom on the longer output side; never the full original.
@@ -145,10 +171,10 @@ final class FrameRenderer {
         guard let imageSource = CGImageSourceCreateWithURL(photoURLs[photoIndex] as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary),
               let cgImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options as CFDictionary)
         else { throw .unreadablePhoto }
-        let image = CIImage(cgImage: cgImage)
+        let loaded = LoadedPhoto(image: CIImage(cgImage: cgImage), cgImage: cgImage)
         if cache.count >= 2 { cache.removeAll() }
-        cache[photoIndex] = image
-        return image
+        cache[photoIndex] = loaded
+        return loaded
     }
 
     static func blend(_ outgoing: CIImage, _ incoming: CIImage, mix: Double, kind: TemplateSpec.Transition.Kind, extent: CGRect) -> CIImage {
@@ -168,6 +194,8 @@ final class FrameRenderer {
             let left = outgoing.transformed(by: CGAffineTransform(translationX: -offset, y: 0))
             let right = incoming.transformed(by: CGAffineTransform(translationX: extent.width - offset, y: 0))
             return right.composited(over: left).cropped(to: extent)
+        case .walkThrough:
+            return WalkCompositor.walkThrough(outgoing, incoming, mix: mix, extent: extent)
         }
     }
 

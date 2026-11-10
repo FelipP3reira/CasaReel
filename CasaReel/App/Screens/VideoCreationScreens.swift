@@ -2,6 +2,7 @@ import DesignSystem
 import Domain
 import FeaturePhotos
 import FeatureVideo
+import FeatureWalk3D
 import SwiftUI
 
 /// The video project being edited, shared by the "Criar" tab screens.
@@ -35,6 +36,7 @@ struct PhotoPickerScreen: View {
     let selection: PhotoSelectionModel
     let editor: EditorSession
     let environment: AppEnvironment
+    @State private var isShowingPhotoGuide = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,6 +53,20 @@ struct PhotoPickerScreen: View {
                 }
                 .padding(Spacing.medium)
             }
+            Card {
+                VStack(alignment: .leading, spacing: Spacing.small) {
+                    Label("Walk 3D real", systemImage: "cube.transparent")
+                        .font(DSFont.headline)
+                    Text("Vídeo andando pela casa em 3D, a partir das suas fotos e vídeos.")
+                        .font(DSFont.caption)
+                        .foregroundStyle(DSColor.textSecondary)
+                    SecondaryButton("Criar Walk 3D", systemImage: "figure.walk") { router.push(.walk3D) }
+                    Button("Dicas de fotos para o efeito Walk", systemImage: "lightbulb") { isShowingPhotoGuide = true }
+                        .font(DSFont.callout)
+                        .frame(minHeight: TouchTarget.minimum)
+                }
+            }
+            .padding([.horizontal, .top], Spacing.medium)
             PhotoSelectionView(model: selection) { photos in
                 editor.start(makeEditor(photos: photos))
                 router.push(.videoEditor)
@@ -58,6 +74,10 @@ struct PhotoPickerScreen: View {
         }
         .background(DSColor.background)
         .navigationTitle(Text("Escolha as fotos"))
+        .sheet(isPresented: $isShowingPhotoGuide) {
+            RecordingGuideView(kind: .photos) { isShowingPhotoGuide = false }
+                .presentationDetents([.large])
+        }
         .task { await editor.refreshSavedDraft(from: environment.drafts) }
     }
 

@@ -29,3 +29,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+
+# Walk 3D Mac tools (downloaded binaries)
+tools/walk3d/bin/
+__pycache__/

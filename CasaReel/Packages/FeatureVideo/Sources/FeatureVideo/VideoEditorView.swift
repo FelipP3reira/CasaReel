@@ -137,6 +137,7 @@ struct TemplatePreviewIcon: View {
         switch slug.rawValue {
         case "cinematic-soft": "film"
         case "dynamic-social": "bolt.fill"
+        case "walk-tour": "figure.walk"
         default: "sparkles"
         }
     }
@@ -382,6 +383,7 @@ extension VideoTemplateInfo {
         case "classic-clean": videoString("Clássico")
         case "cinematic-soft": videoString("Cinematográfico")
         case "dynamic-social": videoString("Dinâmico para redes")
+        case "walk-tour": videoString("Walk 3D")
         default: LocalizedStringResource(stringLiteral: slug.rawValue)
         }
     }
@@ -391,6 +393,7 @@ extension VideoTemplateInfo {
         case "classic-clean": videoString("Zoom suave e transições em fusão.")
         case "cinematic-soft": videoString("Movimentos lentos com passagem pelo preto.")
         case "dynamic-social": videoString("Cortes rápidos, ideal para Reels e TikTok.")
+        case "walk-tour": videoString("A câmera entra e anda pelos cômodos, com profundidade 3D.")
         default: videoString("Template personalizado.")
         }
     }

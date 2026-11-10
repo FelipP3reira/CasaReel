@@ -15,7 +15,9 @@ let package = Package(
             name: "MediaKit",
             dependencies: [
                 .product(name: "Domain", package: "Domain"),
-            ]
+            ],
+            // Depth Anything V2 Small (Apple's Core ML conversion, Apache-2.0), precompiled with `coremlcompiler`.
+            resources: [.copy("Resources/DepthAnythingV2SmallF16P8.mlmodelc")]
         ),
         .testTarget(
             name: "MediaKitTests",

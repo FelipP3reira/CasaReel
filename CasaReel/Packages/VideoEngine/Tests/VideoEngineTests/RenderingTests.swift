@@ -287,7 +287,7 @@ struct RenderIntegrationTests {
         renderer.discard(RenderedVideo(fileURL: outside, thumbnailURL: outside, templateSlug: slug, templateVersion: 1,
                                        aspect: .vertical, durationMs: 0, sizeBytes: 0, sha256: "", watermark: false))
         #expect(FileManager.default.fileExists(atPath: outside.path))
-        #expect(renderer.templates.map(\.slug.rawValue) == ["classic-clean", "cinematic-soft", "dynamic-social"])
+        #expect(renderer.templates.map(\.slug.rawValue) == ["classic-clean", "cinematic-soft", "dynamic-social", "walk-tour"])
     }
 }
 

@@ -1,6 +1,7 @@
 import DesignSystem
 import Domain
 import FeaturePhotos
+import FeatureWalk3D
 import SwiftUI
 
 /// Chooses between the sign-in flow and the tab shell, and handles incoming Universal Links.
@@ -11,10 +12,19 @@ struct RootView: View {
     /// Lives above the tabs so the editor (P10/P11) can use the photos picked in "Criar".
     @State private var photoSelection: PhotoSelectionModel
     @State private var editor = EditorSession()
+    /// Kept above the tabs so an export or render keeps going while the user looks at other screens.
+    @State private var walk3D: Walk3DModel
 
     init(environment: AppEnvironment) {
         self.environment = environment
         _photoSelection = State(initialValue: PhotoSelectionModel(preparer: environment.photoPreparer, analyzer: environment.photoAnalyzer))
+        let exporter = environment.walk3DExporter, renderer = environment.walk3DRenderer
+        // Local mode: no account yet, so the free plan applies (watermark on).
+        _walk3D = State(initialValue: Walk3DModel(
+            watermark: true,
+            export: { photos, videos in exporter.export(photos: photos, videos: videos) },
+            render: { package, watermark in renderer.render(package: package, options: .init(watermark: watermark)) }
+        ))
     }
 
     private var session: SessionStore { environment.session }
@@ -29,10 +39,13 @@ struct RootView: View {
                     router.reset()
                     photoSelection.reset()
                     editor.close()
+                    walk3D.cancelExport()
+                    walk3D.cancelRender()
                     Task { await environment.drafts.delete() }
                     session.signOut()
                     Task { await environment.tokens.clear() }
                 }
+                .environment(walk3D)
             }
         }
         .tint(DSColor.accent)

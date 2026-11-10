@@ -20,6 +20,8 @@
 		D1000000000000000000000B /* FeatureVideo in Frameworks */ = {isa = PBXBuildFile; productRef = C1000000000000000000000B /* FeatureVideo */; };
 		D1000000000000000000000C /* FeatureBilling in Frameworks */ = {isa = PBXBuildFile; productRef = C1000000000000000000000C /* FeatureBilling */; };
 		D1000000000000000000000D /* FeaturePrivacy in Frameworks */ = {isa = PBXBuildFile; productRef = C1000000000000000000000D /* FeaturePrivacy */; };
+		D1000000000000000000000F /* FeatureWalk3D in Frameworks */ = {isa = PBXBuildFile; productRef = C1000000000000000000000F /* FeatureWalk3D */; };
+		D1000000000000000000000E /* Walk3DKit in Frameworks */ = {isa = PBXBuildFile; productRef = C1000000000000000000000E /* Walk3DKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +59,8 @@
 				D1000000000000000000000B /* FeatureVideo in Frameworks */,
 				D1000000000000000000000C /* FeatureBilling in Frameworks */,
 				D1000000000000000000000D /* FeaturePrivacy in Frameworks */,
+				D1000000000000000000000F /* FeatureWalk3D in Frameworks */,
+				D1000000000000000000000E /* Walk3DKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +129,8 @@
 				C1000000000000000000000B /* FeatureVideo */,
 				C1000000000000000000000C /* FeatureBilling */,
 				C1000000000000000000000D /* FeaturePrivacy */,
+				C1000000000000000000000F /* FeatureWalk3D */,
+				C1000000000000000000000E /* Walk3DKit */,
 			);
 			productName = CasaReel;
 			productReference = A10000000000000000000004 /* CasaReel.app */;
@@ -169,6 +175,8 @@
 				B1000000000000000000000B /* XCLocalSwiftPackageReference "Packages/FeatureVideo" */,
 				B1000000000000000000000C /* XCLocalSwiftPackageReference "Packages/FeatureBilling" */,
 				B1000000000000000000000D /* XCLocalSwiftPackageReference "Packages/FeaturePrivacy" */,
+				B1000000000000000000000F /* XCLocalSwiftPackageReference "Packages/FeatureWalk3D" */,
+				B1000000000000000000000E /* XCLocalSwiftPackageReference "Packages/Walk3DKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000000000000000000003 /* Products */;
@@ -356,6 +364,14 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeaturePrivacy;
 		};
+		B1000000000000000000000F /* XCLocalSwiftPackageReference "Packages/FeatureWalk3D" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/FeatureWalk3D;
+		};
+		B1000000000000000000000E /* XCLocalSwiftPackageReference "Packages/Walk3DKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/Walk3DKit;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -423,6 +439,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B1000000000000000000000D /* XCLocalSwiftPackageReference "Packages/FeaturePrivacy" */;
 			productName = FeaturePrivacy;
+		};
+		C1000000000000000000000F /* FeatureWalk3D */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1000000000000000000000F /* XCLocalSwiftPackageReference "Packages/FeatureWalk3D" */;
+			productName = FeatureWalk3D;
+		};
+		C1000000000000000000000E /* Walk3DKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1000000000000000000000E /* XCLocalSwiftPackageReference "Packages/Walk3DKit" */;
+			productName = Walk3DKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

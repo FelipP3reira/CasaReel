@@ -22,7 +22,7 @@ func scene(duration: Int = 3000, motion: String = #"{"type":"kenburns","from":[0
 struct TemplateSpecTests {
     @Test func bundledTemplatesLoadAndValidate() throws {
         let library = try TemplateLibrary()
-        #expect(library.specs.map(\.slug.rawValue) == ["classic-clean", "cinematic-soft", "dynamic-social"])
+        #expect(library.specs.map(\.slug.rawValue) == ["classic-clean", "cinematic-soft", "dynamic-social", "walk-tour"])
         let socialSlug = try #require(TemplateSlug(rawValue: "dynamic-social"))
         let social = try #require(library.spec(for: socialSlug))
         #expect(social.aspect == [.vertical])
@@ -77,7 +77,7 @@ struct TemplateSignatureTests {
         var library = try TemplateLibrary(verificationKey: key.publicKey.rawRepresentation)
         let spec = try library.install(package(templateJSON(slug: "summer-sale")))
         #expect(spec.slug.rawValue == "summer-sale")
-        #expect(library.specs.count == 4)
+        #expect(library.specs.count == 5)
     }
 
     @Test func rejectsTamperedForeignOrUnverifiableTemplates() throws {
@@ -87,7 +87,7 @@ struct TemplateSignatureTests {
 
         var bundledOnly = try TemplateLibrary()
         #expect(throws: TemplateError.invalidSignature) { try bundledOnly.install(package(templateJSON())) }
-        #expect(library.specs.count == 3)
+        #expect(library.specs.count == 4)
     }
 
     @Test func signedButInvalidSpecIsStillRejected() throws {
@@ -100,7 +100,7 @@ struct TemplateSignatureTests {
         let newer = templateJSON(slug: "classic-clean").replacingOccurrences(of: #""version":1"#, with: #""version":2"#)
         #expect(try library.install(package(newer)).version == 2)
         #expect(try library.install(package(templateJSON(slug: "classic-clean"))).version == 2)
-        #expect(library.specs.count == 3)
+        #expect(library.specs.count == 4)
     }
 }
 

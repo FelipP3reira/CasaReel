@@ -1,0 +1,869 @@
+{
+  "sourceLanguage" : "pt-BR",
+  "strings" : {
+    "%lld" : {
+
+    },
+    "%lld fotos e %lld vídeos selecionados" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld photos and %lld videos selected"
+          }
+        }
+      }
+    },
+    "Acenda todas as luzes e abra as cortinas." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on every light and open the curtains."
+          }
+        }
+      }
+    },
+    "Ande devagar, sempre se movendo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walk slowly, always moving"
+          }
+        }
+      }
+    },
+    "Ande devagar, vire devagar, sem parar nas portas." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walk slowly, turn slowly, don't stop at doors."
+          }
+        }
+      }
+    },
+    "Antes de gravar, prepare a casa" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before recording, prepare the home"
+          }
+        }
+      }
+    },
+    "Arrume o que vai aparecer: o vídeo é o anúncio." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidy up what will be seen: the video is your listing."
+          }
+        }
+      }
+    },
+    "Câmera reta: nem para o chão, nem para o teto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the camera level: not at the floor, not at the ceiling."
+          }
+        }
+      }
+    },
+    "Cancelar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Carregando…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading…"
+          }
+        }
+      }
+    },
+    "Celular deitado (na horizontal): pega mais do cômodo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold the phone sideways (landscape): it captures more of the room."
+          }
+        }
+      }
+    },
+    "Celular deitado e reto: linhas das paredes em pé, sem inclinar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone sideways and level: wall lines upright, not tilted."
+          }
+        }
+      }
+    },
+    "Chegar muito perto de paredes lisas ou cantos escuros." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting very close to plain walls or dark corners."
+          }
+        }
+      }
+    },
+    "Como gravar (tutorial)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to record (tutorial)"
+          }
+        }
+      }
+    },
+    "Compartilhar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
+          }
+        }
+      }
+    },
+    "Configure a câmera" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up the camera"
+          }
+        }
+      }
+    },
+    "Continue gravando ao atravessar a porta, de frente e devagar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep recording as you go through the door, facing forward, slowly."
+          }
+        }
+      }
+    },
+    "De 1 a 3 minutos por vídeo. Uma casa inteira cabe em 2 ou 3 vídeos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 to 3 minutes per video. A whole home fits in 2 or 3 videos."
+          }
+        }
+      }
+    },
+    "Dê uma volta pelo cômodo, perto das paredes, com a câmera olhando para o meio." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walk around the room near the walls, with the camera facing the middle."
+          }
+        }
+      }
+    },
+    "Deixe o meio da foto livre: é por ali que a câmera \"anda\"." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the middle of the photo clear: that's where the camera \"walks\"."
+          }
+        }
+      }
+    },
+    "Depois, escolha os vídeos (e, se quiser, as fotos do anúncio) no passo 1." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Then choose the videos (and, if you like, the listing photos) in step 1."
+          }
+        }
+      }
+    },
+    "Desligue TV e ventiladores: o que se mexe confunde o 3D." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn off TVs and fans: anything moving confuses the 3D."
+          }
+        }
+      }
+    },
+    "É a passagem pelas portas que liga os cômodos no 3D." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walking through the doors is what links the rooms in 3D."
+          }
+        }
+      }
+    },
+    "É o passo mais importante: o 3D nasce da diferença entre um ponto de vista e outro." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is the most important step: 3D comes from the difference between one viewpoint and the next."
+          }
+        }
+      }
+    },
+    "Entendi, vamos lá" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got it, let's go"
+          }
+        }
+      }
+    },
+    "Enviar para o Mac" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send to the Mac"
+          }
+        }
+      }
+    },
+    "Escolha fotos e vídeos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose photos and videos"
+          }
+        }
+      }
+    },
+    "Escolha pelo menos uma foto ou um vídeo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose at least one photo or video."
+          }
+        }
+      }
+    },
+    "Escolher na galeria" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose from library"
+          }
+        }
+      }
+    },
+    "Espelhos e vidros grandes: o 3D \"vê\" um cômodo que não existe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mirrors and large glass: the 3D \"sees\" a room that isn't there."
+          }
+        }
+      }
+    },
+    "Esse arquivo não é um 3D gerado pelo script do CasaReel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file is not a 3D scene made by the CasaReel script."
+          }
+        }
+      }
+    },
+    "Evite: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avoid: %@"
+          }
+        }
+      }
+    },
+    "Faça: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do: %@"
+          }
+        }
+      }
+    },
+    "Filmar contra janelas com sol direto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filming against windows with direct sun."
+          }
+        }
+      }
+    },
+    "Fotografe da porta ou de um canto, mostrando o cômodo inteiro." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shoot from the doorway or a corner, showing the whole room."
+          }
+        }
+      }
+    },
+    "Fotos do anúncio ajudam nos detalhes, mas o vídeo é essencial." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listing photos help with detail, but the video is essential."
+          }
+        }
+      }
+    },
+    "Fotos para o efeito Walk" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos for the Walk effect"
+          }
+        }
+      }
+    },
+    "Gerando o vídeo em 3D…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rendering the 3D video…"
+          }
+        }
+      }
+    },
+    "Gere o vídeo andando" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Render the walk video"
+          }
+        }
+      }
+    },
+    "Guarde documentos e fotos de família." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Put away documents and family photos."
+          }
+        }
+      }
+    },
+    "Importar 3D" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import 3D"
+          }
+        }
+      }
+    },
+    "Importar outro 3D" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import another 3D"
+          }
+        }
+      }
+    },
+    "Lente 1× e sem zoom durante a gravação." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1× lens and no zooming while recording."
+          }
+        }
+      }
+    },
+    "Limpe a lente antes de começar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean the lens before you start."
+          }
+        }
+      }
+    },
+    "Luzes acesas e cortinas abertas, sem filmar contra o sol." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lights on and curtains open, not shooting into the sun."
+          }
+        }
+      }
+    },
+    "Luzes acesas, casa arrumada, ninguém no caminho." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lights on, home tidy, nobody in the way."
+          }
+        }
+      }
+    },
+    "Modo Vídeo, lente 1×, celular deitado na altura do peito." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video mode, 1× lens, phone sideways at chest height."
+          }
+        }
+      }
+    },
+    "Monte o 3D no Mac" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build the 3D on your Mac"
+          }
+        }
+      }
+    },
+    "Móveis colados na câmera e fotos muito fechadas (zoom)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Furniture right in front of the camera and tight (zoomed) shots."
+          }
+        }
+      }
+    },
+    "Movimentos bruscos e vídeo tremido." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sudden movements and shaky video."
+          }
+        }
+      }
+    },
+    "Não foi possível abrir os itens escolhidos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The chosen items could not be opened."
+          }
+        }
+      }
+    },
+    "Não foi possível desenhar o 3D neste aparelho." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This device could not draw the 3D scene."
+          }
+        }
+      }
+    },
+    "Não foi possível gerar o vídeo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The video could not be rendered."
+          }
+        }
+      }
+    },
+    "Não foi possível preparar o pacote." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The package could not be prepared."
+          }
+        }
+      }
+    },
+    "Não foi possível salvar o vídeo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The video could not be saved."
+          }
+        }
+      }
+    },
+    "Não gire o celular de deitado para em pé no meio do vídeo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't turn the phone from landscape to portrait mid-video."
+          }
+        }
+      }
+    },
+    "Não gire parado no lugar: sem andar, não há 3D." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't spin in place: no walking, no 3D."
+          }
+        }
+      }
+    },
+    "Não use os modos Cinematográfico, Ação, Câmera lenta ou Timelapse." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't use Cinematic, Action, Slo-mo or Time-lapse modes."
+          }
+        }
+      }
+    },
+    "No Mac, rode o script walk3d.sh com o pacote. Ele usa programas gratuitos (COLMAP e Brush) e leva de 30 minutos a 2 horas. No fim, ele cria um arquivo terminado em -3D.aar: envie-o de volta para o iPhone por AirDrop e salve em Arquivos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On your Mac, run the walk3d.sh script with the package. It uses free tools (COLMAP and Brush) and takes 30 minutes to 2 hours. It then creates a file ending in -3D.aar: AirDrop it back to the iPhone and save it to Files."
+          }
+        }
+      }
+    },
+    "No plano grátis o vídeo sai com a marca d'água CasaReel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the free plan the video carries the CasaReel watermark."
+          }
+        }
+      }
+    },
+    "O 3D só fica bom com luz e com tudo parado." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3D only works well with good light and nothing moving."
+          }
+        }
+      }
+    },
+    "O aparelho esquentou demais. Tente de novo em alguns minutos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The device got too hot. Try again in a few minutes."
+          }
+        }
+      }
+    },
+    "O aparelho esquentou. Continua assim que esfriar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The device got hot. It continues once it cools down."
+          }
+        }
+      }
+    },
+    "O que atrapalha o 3D" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What spoils the 3D"
+          }
+        }
+      }
+    },
+    "O vídeo \"entra\" em cada foto. Estas dicas deixam o movimento mais natural." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The video \"walks into\" each photo. These tips make the motion look natural."
+          }
+        }
+      }
+    },
+    "Pacote pronto: %lld fotos e %lld quadros de vídeo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Package ready: %lld photos and %lld video frames"
+          }
+        }
+      }
+    },
+    "Passe de um cômodo para o outro sem parar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go from room to room without stopping"
+          }
+        }
+      }
+    },
+    "Poucas imagens para montar o 3D. Adicione um vídeo andando pelos cômodos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too few images to build the 3D. Add a video walking through the rooms."
+          }
+        }
+      }
+    },
+    "Pouco espaço livre no iPhone." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough free space on the iPhone."
+          }
+        }
+      }
+    },
+    "Preparar pacote para o Mac" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepare package for the Mac"
+          }
+        }
+      }
+    },
+    "Próximo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        }
+      }
+    },
+    "Pular" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "Resumo rápido" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick recap"
+          }
+        }
+      }
+    },
+    "Salvar na galeria" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save to library"
+          }
+        }
+      }
+    },
+    "Se parar, comece o próximo vídeo de onde o anterior terminou." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you stop, start the next video where the last one ended."
+          }
+        }
+      }
+    },
+    "Segure firme, na altura do peito" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold it steady, at chest height"
+          }
+        }
+      }
+    },
+    "Sem permissão para salvar. Ative em Ajustes > CasaReel > Fotos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No permission to save. Turn it on in Settings > CasaReel > Photos."
+          }
+        }
+      }
+    },
+    "Separando os melhores quadros…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picking the best frames…"
+          }
+        }
+      }
+    },
+    "Tire pessoas e animais do caminho." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep people and pets out of the way."
+          }
+        }
+      }
+    },
+    "Transforme fotos e vídeos da casa em um vídeo andando pelos cômodos em 3D de verdade." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn photos and videos of the home into a video walking through the rooms in real 3D."
+          }
+        }
+      }
+    },
+    "Um dos vídeos não pôde ser lido." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One of the videos could not be read."
+          }
+        }
+      }
+    },
+    "Um passo por segundo, como num passeio calmo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One step per second, like a calm stroll."
+          }
+        }
+      }
+    },
+    "Use as duas mãos, com os cotovelos junto ao corpo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use both hands, elbows close to your body."
+          }
+        }
+      }
+    },
+    "Use o app Câmera do iPhone, no modo Vídeo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the iPhone Camera app in Video mode."
+          }
+        }
+      }
+    },
+    "Use vídeos filmados andando devagar pelos cômodos, com o celular na altura do peito. Evite pessoas, espelhos e documentos à vista." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use videos filmed walking slowly through the rooms, phone at chest height. Avoid people, mirrors and visible documents."
+          }
+        }
+      }
+    },
+    "Vídeo salvo na galeria." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video saved to library."
+          }
+        }
+      }
+    },
+    "Vire devagar: uns 4 segundos para fazer uma curva." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn slowly: about 4 seconds per turn."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
