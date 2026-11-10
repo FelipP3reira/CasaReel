@@ -1,0 +1,566 @@
+{
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "A biblioteca de músicas licenciadas estará disponível em breve.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The licensed music library will be available soon."
+          }
+        }
+      }
+    },
+    "Arraste para reordenar. Duração total: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to reorder. Total length: %@"
+          }
+        }
+      }
+    },
+    "Até %lld caracteres.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up to %lld characters."
+          }
+        }
+      }
+    },
+    "Avançar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
+    "Bateria fraca: conecte o carregador para gerar o vídeo sem interrupções.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low battery: plug in the charger to render the video without interruptions."
+          }
+        }
+      }
+    },
+    "Cancelar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Cena %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scene %lld"
+          }
+        }
+      }
+    },
+    "Cena %lld: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scene %lld: %@"
+          }
+        }
+      }
+    },
+    "Cerca de %lld s restantes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About %lld s left"
+          }
+        }
+      }
+    },
+    "Cinematográfico": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cinematic"
+          }
+        }
+      }
+    },
+    "Clássico": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classic"
+          }
+        }
+      }
+    },
+    "Compartilhar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        }
+      }
+    },
+    "Cortes rápidos, ideal para Reels e TikTok.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast cuts, ideal for Reels and TikTok."
+          }
+        }
+      }
+    },
+    "Dinâmico para redes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Social dynamic"
+          }
+        }
+      }
+    },
+    "Duplicar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate"
+          }
+        }
+      }
+    },
+    "Duração": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
+          }
+        }
+      }
+    },
+    "Escolha o estilo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a style"
+          }
+        }
+      }
+    },
+    "Espaço insuficiente no aparelho. Libere espaço e tente de novo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough storage. Free up space and try again."
+          }
+        }
+      }
+    },
+    "Este estilo não oferece o formato escolhido.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This style doesn't offer the chosen format."
+          }
+        }
+      }
+    },
+    "Ex.: Casa de praia em Ubatuba": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E.g.: Beach house in Ubatuba"
+          }
+        }
+      }
+    },
+    "Ex.: Reserve pelo link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E.g.: Book through the link"
+          }
+        }
+      }
+    },
+    "Formato": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format"
+          }
+        }
+      }
+    },
+    "Gerando %@…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rendering %@…"
+          }
+        }
+      }
+    },
+    "Gerar vídeo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create video"
+          }
+        }
+      }
+    },
+    "Horizontal 16:9": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Landscape 16:9"
+          }
+        }
+      }
+    },
+    "Legenda": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caption"
+          }
+        }
+      }
+    },
+    "Mover para baixo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move down"
+          }
+        }
+      }
+    },
+    "Mover para cima": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move up"
+          }
+        }
+      }
+    },
+    "Movimentos lentos com passagem pelo preto.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slow moves with dips to black."
+          }
+        }
+      }
+    },
+    "Música": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music"
+          }
+        }
+      }
+    },
+    "Nome do cômodo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Room name"
+          }
+        }
+      }
+    },
+    "Não foi possível gerar o vídeo. Tente de novo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The video couldn't be created. Try again."
+          }
+        }
+      }
+    },
+    "Não foi possível salvar o vídeo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The video couldn't be saved."
+          }
+        }
+      }
+    },
+    "O aparelho esquentou demais. Espere esfriar e tente de novo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device got too hot. Let it cool down and try again."
+          }
+        }
+      }
+    },
+    "O aparelho esquentou. O vídeo continua assim que ele esfriar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device is warm. The video resumes as soon as it cools down."
+          }
+        }
+      }
+    },
+    "Opções da cena %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scene %lld options"
+          }
+        }
+      }
+    },
+    "Passo %lld de %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %lld of %lld"
+          }
+        }
+      }
+    },
+    "Personalize": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customize"
+          }
+        }
+      }
+    },
+    "Preparando a prévia…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing preview…"
+          }
+        }
+      }
+    },
+    "Pro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
+          }
+        }
+      }
+    },
+    "Prévia e exportação": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview and export"
+          }
+        }
+      }
+    },
+    "Remover": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
+    "Roteiro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storyboard"
+          }
+        }
+      }
+    },
+    "Salvar na galeria": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to Photos"
+          }
+        }
+      }
+    },
+    "Sem música": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No music"
+          }
+        }
+      }
+    },
+    "Sem permissão para salvar. Ative em Ajustes > CasaReel > Fotos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No permission to save. Turn it on in Settings > CasaReel > Photos."
+          }
+        }
+      }
+    },
+    "Template personalizado.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom template."
+          }
+        }
+      }
+    },
+    "Texto de abertura": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening text"
+          }
+        }
+      }
+    },
+    "Texto de encerramento": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closing text"
+          }
+        }
+      }
+    },
+    "Uma das fotos não pôde ser lida. Volte e escolha as fotos novamente.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One of the photos couldn't be read. Go back and pick the photos again."
+          }
+        }
+      }
+    },
+    "Ver prévia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
+          }
+        }
+      }
+    },
+    "Vertical 9:16": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Portrait 9:16"
+          }
+        }
+      }
+    },
+    "Voltar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "Vídeo %@ pronto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ video ready"
+          }
+        }
+      }
+    },
+    "Vídeo salvo na galeria.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video saved to Photos."
+          }
+        }
+      }
+    },
+    "Zoom suave e transições em fusão.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gentle zoom and cross-fades."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

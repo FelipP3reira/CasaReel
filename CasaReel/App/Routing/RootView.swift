@@ -10,6 +10,7 @@ struct RootView: View {
     @State private var toasts = ToastCenter()
     /// Lives above the tabs so the editor (P10/P11) can use the photos picked in "Criar".
     @State private var photoSelection: PhotoSelectionModel
+    @State private var editor = EditorSession()
 
     init(environment: AppEnvironment) {
         self.environment = environment
@@ -24,9 +25,11 @@ struct RootView: View {
             case .signedOut, .revoked:
                 AuthPlaceholderView(isRevoked: session.state == .revoked) { session.signIn() }
             case .signedIn:
-                MainTabView(router: router, photoSelection: photoSelection) {
+                MainTabView(router: router, photoSelection: photoSelection, editor: editor, environment: environment) {
                     router.reset()
                     photoSelection.reset()
+                    editor.close()
+                    Task { await environment.drafts.delete() }
                     session.signOut()
                     Task { await environment.tokens.clear() }
                 }
@@ -35,6 +38,7 @@ struct RootView: View {
         .tint(DSColor.accent)
         .toastHost(toasts)
         .task { await environment.observeSessionEvents() }
+        .task { await environment.purgeUnusedPhotos() }
         .onOpenURL(perform: open)
         .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
             if let url = activity.webpageURL { open(url) }

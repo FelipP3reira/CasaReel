@@ -1,12 +1,12 @@
 {
   "sourceLanguage": "pt-BR",
   "strings": {
-    "%lld fotos prontas. O vídeo será montado aqui.": {
+    "%lld cenas, salvo %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld photos ready. The video will be built here."
+            "value": "%lld scenes, saved %@"
           }
         }
       }
@@ -51,6 +51,16 @@
         }
       }
     },
+    "Banheiro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bathroom"
+          }
+        }
+      }
+    },
     "Bem-vindo ao CasaReel": {
       "localizations": {
         "en": {
@@ -87,6 +97,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Account"
+          }
+        }
+      }
+    },
+    "Cozinha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kitchen"
           }
         }
       }
@@ -131,6 +151,26 @@
         }
       }
     },
+    "Escolha as fotos na aba Criar para começar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick photos in the Create tab to start."
+          }
+        }
+      }
+    },
+    "Fachada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facade"
+          }
+        }
+      }
+    },
     "Imóveis": {
       "localizations": {
         "en": {
@@ -167,6 +207,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No properties yet"
+          }
+        }
+      }
+    },
+    "Nenhum vídeo em edição": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No video being edited"
           }
         }
       }
@@ -221,6 +271,16 @@
         }
       }
     },
+    "Piscina": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pool"
+          }
+        }
+      }
+    },
     "Planos": {
       "localizations": {
         "en": {
@@ -237,6 +297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Privacy"
+          }
+        }
+      }
+    },
+    "Quarto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedroom"
           }
         }
       }
@@ -261,12 +331,32 @@
         }
       }
     },
+    "Retomar rascunho": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume draft"
+          }
+        }
+      }
+    },
     "Sair": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Sign out"
+          }
+        }
+      }
+    },
+    "Sala": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Living room"
           }
         }
       }
@@ -291,12 +381,32 @@
         }
       }
     },
+    "Varanda": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balcony"
+          }
+        }
+      }
+    },
     "Ver imóvel de exemplo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "View sample property"
+          }
+        }
+      }
+    },
+    "Você tem um vídeo em andamento": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have a video in progress"
           }
         }
       }

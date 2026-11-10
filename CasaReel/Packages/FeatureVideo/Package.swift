@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "FeatureVideo",
+    defaultLocalization: "pt-BR",
     platforms: [.iOS(.v17)],
     products: [
         .library(name: "FeatureVideo", targets: ["FeatureVideo"]),
@@ -17,11 +18,15 @@ let package = Package(
             dependencies: [
                 .product(name: "Domain", package: "Domain"),
                 .product(name: "DesignSystem", package: "DesignSystem"),
-            ]
+            ],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "FeatureVideoTests",
-            dependencies: ["FeatureVideo"]
+            dependencies: [
+                "FeatureVideo",
+                .product(name: "Domain", package: "Domain"),
+            ]
         ),
     ]
 )

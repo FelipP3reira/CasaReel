@@ -3,16 +3,23 @@ import Foundation
 
 /// Validates and sanitizes picked photos into a private working directory.
 ///
-/// Files live under `tmp/CasaReelPhotos/<batch>` (never backed up) with `completeUnlessOpen` data protection,
-/// and are removed on `discard`, `discardAll` or when the original staged copy has been processed.
+/// Files live under `Application Support/CasaReelPhotos/<batch>` (excluded from backup, so a saved video draft
+/// survives relaunches) with `completeUnlessOpen` data protection, and are removed on `discard`, `discardAll`
+/// or, for batches no draft references, by the app at launch (`purgeBatches(keeping:)`).
 public final class PhotoPreparationService: PhotoPreparing {
     public let stagingDirectory: URL
+    /// This instance's batch; kept by the launch purge.
+    public var batchDirectory: URL { root }
     private let preparedDirectory: URL
     private let root: URL
     private let validator = PhotoValidator()
     private let sanitizer = PhotoSanitizer()
 
-    public init(baseDirectory: URL = FileManager.default.temporaryDirectory.appending(path: "CasaReelPhotos", directoryHint: .isDirectory)) {
+    public static let defaultBaseDirectory = URL.applicationSupportDirectory.appending(path: "CasaReelPhotos", directoryHint: .isDirectory)
+    private let baseDirectory: URL
+
+    public init(baseDirectory: URL = PhotoPreparationService.defaultBaseDirectory) {
+        self.baseDirectory = baseDirectory
         root = baseDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         stagingDirectory = root.appending(path: "staging", directoryHint: .isDirectory)
         preparedDirectory = root.appending(path: "prepared", directoryHint: .isDirectory)
@@ -57,8 +64,23 @@ public final class PhotoPreparationService: PhotoPreparing {
         try? FileManager.default.removeItem(at: root)
     }
 
+    /// Deletes every batch except the ones holding `files` (photos used by a saved draft).
+    public static func purgeBatches(in base: URL = defaultBaseDirectory, keeping files: [URL]) {
+        let batches = (try? FileManager.default.contentsOfDirectory(at: base, includingPropertiesForKeys: nil)) ?? []
+        for batch in batches where !files.contains(where: { isInside($0, batch) }) {
+            try? FileManager.default.removeItem(at: batch)
+        }
+    }
+
     private func ensureDirectories() throws(PhotoRejection) {
         do {
+            if !FileManager.default.fileExists(atPath: baseDirectory.path) {
+                try FileManager.default.createDirectory(at: baseDirectory, withIntermediateDirectories: true)
+                var base = baseDirectory
+                var values = URLResourceValues()
+                values.isExcludedFromBackup = true
+                try base.setResourceValues(values)
+            }
             for directory in [stagingDirectory, preparedDirectory] {
                 try FileManager.default.createDirectory(
                     at: directory, withIntermediateDirectories: true,

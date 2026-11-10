@@ -1,6 +1,5 @@
 import DesignSystem
 import Domain
-import FeaturePhotos
 import SwiftUI
 
 // Placeholder screens; each one is replaced by its feature module in later prompts.
@@ -47,35 +46,6 @@ struct PropertyDetailScreen: View {
         .navigationTitle(Text("Imóvel"))
         .navigationBarTitleDisplayMode(.inline)
         .screenPrivacy()
-    }
-}
-
-struct PhotoPickerScreen: View {
-    let router: Router
-    let selection: PhotoSelectionModel
-
-    var body: some View {
-        PhotoSelectionView(model: selection) { _ in
-            router.push(.videoEditor)
-        }
-        .navigationTitle(Text("Escolha as fotos"))
-    }
-}
-
-/// Placeholder until the video engine (P10) and editor (P11) arrive.
-struct VideoEditorScreen: View {
-    let photoCount: Int
-
-    var body: some View {
-        PlaceholderScroll {
-            EmptyState(
-                systemImage: "film.stack",
-                title: "Editor de vídeo",
-                message: "\(photoCount) fotos prontas. O vídeo será montado aqui."
-            )
-        }
-        .navigationTitle(Text("Editor de vídeo"))
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

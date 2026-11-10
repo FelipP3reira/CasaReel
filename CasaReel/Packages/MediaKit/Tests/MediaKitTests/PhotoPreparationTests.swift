@@ -209,3 +209,20 @@ struct ImageFormatSnifferTests {
         #expect(ImageFormatSniffer.format(of: bytes) == expected)
     }
 }
+
+struct PhotoBatchPurgeTests {
+    @Test func purgeKeepsOnlyBatchesReferencedByTheDraft() throws {
+        let base = try Fixtures.directory()
+        defer { try? FileManager.default.removeItem(at: base) }
+        let kept = base.appending(path: "batch-a/prepared", directoryHint: .isDirectory)
+        let dropped = base.appending(path: "batch-b/prepared", directoryHint: .isDirectory)
+        for directory in [kept, dropped] { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
+        let file = kept.appending(path: "photo.jpg")
+        try Data("x".utf8).write(to: file)
+
+        PhotoPreparationService.purgeBatches(in: base, keeping: [file])
+
+        #expect(FileManager.default.fileExists(atPath: file.path))
+        #expect(!FileManager.default.fileExists(atPath: base.appending(path: "batch-b").path))
+    }
+}

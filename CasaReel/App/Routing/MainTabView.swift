@@ -6,6 +6,8 @@ import SwiftUI
 struct MainTabView: View {
     @Bindable var router: Router
     let photoSelection: PhotoSelectionModel
+    let editor: EditorSession
+    let environment: AppEnvironment
     let onSignOut: () -> Void
 
     var body: some View {
@@ -14,7 +16,7 @@ struct MainTabView: View {
                 .tabItem { Label("Imóveis", systemImage: "house") }
                 .tag(AppTab.properties)
 
-            stack(for: .create) { PhotoPickerScreen(router: router, selection: photoSelection) }
+            stack(for: .create) { PhotoPickerScreen(router: router, selection: photoSelection, editor: editor, environment: environment) }
                 .tabItem { Label("Criar", systemImage: "plus.circle") }
                 .tag(AppTab.create)
 
@@ -30,7 +32,8 @@ struct MainTabView: View {
             set: { router.setPath($0, for: tab) }
         )) {
             root().navigationDestination(for: AppRoute.self) { route in
-                RouteDestination(route: route, router: router, photoSelection: photoSelection, onSignOut: onSignOut)
+                RouteDestination(route: route, router: router, photoSelection: photoSelection,
+                                 editor: editor, environment: environment, onSignOut: onSignOut)
             }
         }
     }
@@ -41,6 +44,8 @@ struct RouteDestination: View {
     let route: AppRoute
     let router: Router
     let photoSelection: PhotoSelectionModel
+    let editor: EditorSession
+    let environment: AppEnvironment
     let onSignOut: () -> Void
 
     var body: some View {
@@ -52,9 +57,9 @@ struct RouteDestination: View {
         case .propertyDetail(let id):
             PropertyDetailScreen(id: id)
         case .photoPicker:
-            PhotoPickerScreen(router: router, selection: photoSelection)
+            PhotoPickerScreen(router: router, selection: photoSelection, editor: editor, environment: environment)
         case .videoEditor:
-            VideoEditorScreen(photoCount: photoSelection.readyPhotos.count)
+            VideoEditorScreen(router: router, editor: editor)
         case .subscription:
             SubscriptionScreen()
         case .privacy:

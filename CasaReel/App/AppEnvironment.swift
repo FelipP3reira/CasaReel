@@ -1,4 +1,5 @@
 import Domain
+import FeatureVideo
 import Foundation
 import MediaKit
 import Networking
@@ -17,6 +18,9 @@ struct AppEnvironment: Sendable {
     let configVerifier: SignedConfigVerifier
     let apiClient: any APIClient
     let photoPreparer: any PhotoPreparing
+    let photoBatch: URL
+    let drafts: any VideoDraftStoring
+    let power: any PowerStatusProviding
     let photoAnalyzer: any PhotoAnalyzing
     let videoRenderer: any VideoRenderer
     let localStore: any LocalStore
@@ -58,6 +62,9 @@ struct AppEnvironment: Sendable {
         let apiClient = URLSessionAPIClient(configuration: clientConfiguration, pinningPolicy: pinning, tokens: tokens, attest: attest)
         // Bundled templates ship inside the signed app; a broken bundle is a configuration error, not a crash.
         guard let templates = try? TemplateLibrary() else { throw .invalidValue("templates") }
+        let preparer = PhotoPreparationService()
+        // Falls back to memory if the store can't be opened; drafts are a convenience, never required.
+        let drafts: any VideoDraftStoring = (try? SwiftDataVideoDraftStore.make()) ?? (try? SwiftDataVideoDraftStore.make(inMemory: true)) ?? NoDraftStore()
 
         return AppEnvironment(
             configuration: configuration,
@@ -66,11 +73,20 @@ struct AppEnvironment: Sendable {
             pinningPolicy: pinning,
             configVerifier: verifier,
             apiClient: apiClient,
-            photoPreparer: PhotoPreparationService(),
+            photoPreparer: preparer,
+            photoBatch: preparer.batchDirectory,
+            drafts: drafts,
+            power: DevicePowerStatus(),
             photoAnalyzer: PhotoAnalysisService(),
             videoRenderer: VideoEngineRenderer(library: templates, keepAwake: keepScreenAwake),
             localStore: SwiftDataLocalStore()
         )
+    }
+
+    /// Deletes photo batches from earlier runs, except the ones the saved draft still uses.
+    func purgeUnusedPhotos() async {
+        let keep = (await drafts.load()?.photoFiles ?? []) + [photoBatch.appending(path: "keep")]
+        PhotoPreparationService.purgeBatches(keeping: keep)
     }
 
     /// Mirrors server-side revocations into the global session state; runs for the app's lifetime.
