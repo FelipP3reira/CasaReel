@@ -30,6 +30,7 @@ struct SceneTimeline: Equatable {
         spec: TemplateSpec,
         aspect: VideoAspect,
         photos: [(size: CGSize, focus: CGRect, faces: [CGRect], caption: String?)],
+        durationOverrides: [Int?] = [],
         targetDurationMs: Int?
     ) -> SceneTimeline {
         guard !photos.isEmpty else { return SceneTimeline(entries: [], durationMs: 0, fps: spec.fps) }
@@ -40,7 +41,8 @@ struct SceneTimeline: Equatable {
         var entries: [Entry] = []
         var cursor = 0
         for (index, scene) in scenes.enumerated() {
-            let duration = clampDuration(Int((Double(scene.durationMs) * factor).rounded()))
+            let override = durationOverrides.indices.contains(index) ? durationOverrides[index] : nil
+            let duration = clampDuration(override ?? Int((Double(scene.durationMs) * factor).rounded()))
             let isLast = index == scenes.count - 1
             let transition = isLast ? nil : scene.transitionOut
             let kind = transition?.type ?? .cut

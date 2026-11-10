@@ -2,7 +2,7 @@ import Foundation
 
 /// A photo that passed validation and sanitization: re-encoded, metadata-free and ready to use or upload.
 /// Nothing reaches the video engine or the server without going through `PhotoPreparing`.
-public struct PreparedPhoto: Sendable, Hashable, Identifiable {
+public struct PreparedPhoto: Codable, Sendable, Hashable, Identifiable {
     public let id: UUID
     public let fileURL: URL
     /// Lowercase hex SHA-256 of the sanitized file.

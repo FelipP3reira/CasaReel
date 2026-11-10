@@ -53,6 +53,7 @@ final class FrameRenderer {
     private let photoURLs: [URL]
     private let captions: [Int: CIImage]
     private let title: CIImage?
+    private let closing: CIImage?
     private let watermark: CIImage?
     private let watermarkPosition: TemplateSpec.Watermark.Position
     private var cache: [Int: CIImage] = [:]
@@ -62,7 +63,7 @@ final class FrameRenderer {
 
     init(
         timeline: SceneTimeline, photoURLs: [URL], outputSize: CGSize, context: CIContext,
-        title: String?, watermark: Bool, watermarkPosition: TemplateSpec.Watermark.Position
+        title: String?, closingText: String? = nil, watermark: Bool, watermarkPosition: TemplateSpec.Watermark.Position
     ) {
         self.timeline = timeline
         self.photoURLs = photoURLs
@@ -73,6 +74,7 @@ final class FrameRenderer {
             entry.caption.flatMap { OverlayFactory.caption($0, outputWidth: outputSize.width) }.map { (index, $0) }
         })
         self.title = title.flatMap { OverlayFactory.title($0, outputWidth: outputSize.width) }
+        closing = closingText.flatMap { OverlayFactory.title($0, outputWidth: outputSize.width) }
         self.watermark = watermark ? OverlayFactory.watermark(outputWidth: outputSize.width) : nil
     }
 
@@ -104,6 +106,12 @@ final class FrameRenderer {
             let alpha = Self.fade(timeMs, total: Int(Self.titleMs))
             let origin = CGPoint(x: (outputSize.width - title.extent.width) / 2, y: (outputSize.height - title.extent.height) / 2)
             image = Self.place(title, alpha: alpha, at: origin).composited(over: image)
+        }
+        let remaining = timeline.durationMs - timeMs
+        if let closing, Double(remaining) <= Self.titleMs {
+            let alpha = Self.fade(Int(Self.titleMs) - remaining, total: Int(Self.titleMs) + Int(Self.fadeMs))
+            let origin = CGPoint(x: (outputSize.width - closing.extent.width) / 2, y: outputSize.height * 0.3)
+            image = Self.place(closing, alpha: alpha, at: origin).composited(over: image)
         }
         if let watermark {
             image = Self.place(watermark, alpha: 0.85, at: watermarkOrigin(for: watermark.extent.size)).composited(over: image)

@@ -89,17 +89,22 @@ public final class VideoEngineRenderer: VideoRenderer {
     func timeline(for request: VideoRenderRequest) throws(RenderError) -> (TemplateSpec, SceneTimeline) {
         guard let spec = library.spec(for: request.templateSlug) else { throw .unknownTemplate }
         guard spec.aspect.contains(request.aspect) else { throw .unsupportedAspect }
-        guard !request.photos.isEmpty, request.photos.count <= PhotoLimits.maximumCount else { throw .notEnoughPhotos }
-        let photos = request.photos.map { photo in
-            let analysis = request.analyses[photo.id]
+        // Duplicated scenes may repeat photos, so the cap is on scenes, not on unique photos.
+        guard !request.scenes.isEmpty, request.scenes.count <= TemplateLimits.maxScenes else { throw .notEnoughPhotos }
+        let photos = request.scenes.map { scene in
+            let analysis = request.analyses[scene.photo.id]
             return (
-                size: CGSize(width: photo.width, height: photo.height),
+                size: CGSize(width: scene.photo.width, height: scene.photo.height),
                 focus: analysis?.focus ?? CGRect(x: 0, y: 0, width: 1, height: 1),
                 faces: analysis?.faces ?? [],
-                caption: request.captions[photo.id]
+                caption: scene.caption
             )
         }
-        return (spec, SceneTimeline.build(spec: spec, aspect: request.aspect, photos: photos, targetDurationMs: request.targetDurationMs))
+        let timeline = SceneTimeline.build(
+            spec: spec, aspect: request.aspect, photos: photos,
+            durationOverrides: request.scenes.map(\.durationMs), targetDurationMs: request.targetDurationMs
+        )
+        return (spec, timeline)
     }
 
     private func perform(_ request: VideoRenderRequest, onEvent: @escaping @Sendable (RenderEvent) -> Void) async throws -> RenderedVideo {
@@ -112,17 +117,22 @@ public final class VideoEngineRenderer: VideoRenderer {
         let silent = outputDirectory.appending(path: "\(id)-video.mp4")
         let final = outputDirectory.appending(path: "\(id).mp4")
         let thumbnail = outputDirectory.appending(path: "\(id).jpg")
-        let size = CGSize(width: request.aspect.renderSize.width, height: request.aspect.renderSize.height)
+        let pixels = request.aspect.renderSize(for: request.quality)
+        let size = CGSize(width: pixels.width, height: pixels.height)
+        var options = writerOptions
+        if request.quality == .preview { options.bitRate = 3_000_000 }
+        try ensureFreeSpace(for: timeline, bitRate: options.bitRate)
         let renderer = FrameRenderer(
             timeline: timeline, photoURLs: request.photos.map(\.fileURL), outputSize: size, context: context,
-            title: request.title, watermark: request.watermark, watermarkPosition: spec.watermark?.position ?? .bottomRight
+            title: request.title, closingText: request.closingText, watermark: request.watermark,
+            watermarkPosition: spec.watermark?.position ?? .bottomRight
         )
 
         await keepAwake(true)
         defer { Task { await keepAwake(false) } }
         do {
             onEvent(.progress(0))
-            try await VideoWriter(options: writerOptions, thermal: thermal).write(renderer, timeline: timeline, to: silent, onEvent: onEvent)
+            try await VideoWriter(options: options, thermal: thermal).write(renderer, timeline: timeline, to: silent, onEvent: onEvent)
             if let audio = request.audioTrackURL {
                 try await AudioMixer.mux(video: silent, audio: audio, fadeOutMs: spec.audio?.fadeOutMs ?? 1_000, to: final)
                 try? FileManager.default.removeItem(at: silent)
@@ -141,6 +151,15 @@ public final class VideoEngineRenderer: VideoRenderer {
         } catch {
             for url in [silent, final, thumbnail] { try? FileManager.default.removeItem(at: url) }
             throw error
+        }
+    }
+
+    /// The silent pass, the muxed copy and some margin must fit on disk before starting.
+    private func ensureFreeSpace(for timeline: SceneTimeline, bitRate: Int) throws(RenderError) {
+        let estimate = Int64(Double(timeline.durationMs) / 1000 * Double(bitRate) / 8 * 2.2) + 100_000_000
+        let values = try? outputDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+        if let available = values?.volumeAvailableCapacityForImportantUsage, available < estimate {
+            throw .insufficientStorage
         }
     }
 

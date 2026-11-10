@@ -290,3 +290,45 @@ struct RenderIntegrationTests {
         #expect(renderer.templates.map(\.slug.rawValue) == ["classic-clean", "cinematic-soft", "dynamic-social"])
     }
 }
+
+@Suite(.serialized)
+struct SceneRequestTests {
+    @Test func perSceneDurationsAndDuplicatesShapeTheTimeline() throws {
+        let fixtures = try RenderFixtures()
+        let photo = try fixtures.photo(red: 0.5, green: 0.5, blue: 0.5)
+        let renderer = VideoEngineRenderer(library: try TemplateLibrary(), outputDirectory: fixtures.outputs)
+        let slug = try #require(TemplateSlug(rawValue: "classic-clean"))
+        let request = VideoRenderRequest(
+            scenes: [VideoScene(photo: photo, caption: "Sala", durationMs: 2_000), VideoScene(photo: photo, caption: "Sala de novo", durationMs: 20_000)],
+            templateSlug: slug, aspect: .vertical, watermark: false
+        )
+
+        let (_, timeline) = try renderer.timeline(for: request)
+
+        #expect(timeline.entries.map(\.durationMs) == [2_000, 8_000], "overrides are clamped to 1–8 s")
+        #expect(timeline.entries.map(\.caption) == ["Sala", "Sala de novo"])
+        #expect(VideoAspect.vertical.renderSize(for: .preview) == (540, 960))
+    }
+
+    @Test(.timeLimit(.minutes(3)))
+    func previewRendersAtHalfSizeWithClosingText() async throws {
+        let fixtures = try RenderFixtures()
+        let photo = try fixtures.photo(red: 0.2, green: 0.4, blue: 0.8)
+        let renderer = VideoEngineRenderer(library: try TemplateLibrary(), outputDirectory: fixtures.outputs)
+        let slug = try #require(TemplateSlug(rawValue: "cinematic-soft"))
+        let request = VideoRenderRequest(
+            scenes: [VideoScene(photo: photo, durationMs: 2_000), VideoScene(photo: photo, durationMs: 2_000)],
+            templateSlug: slug, aspect: .horizontal, closingText: "Reserve pelo link", watermark: true, quality: .preview
+        )
+
+        var video: RenderedVideo?
+        for try await event in renderer.render(request) {
+            if case .finished(let rendered) = event { video = rendered }
+        }
+
+        let rendered = try #require(video)
+        let track = try #require(try await AVURLAsset(url: rendered.fileURL).loadTracks(withMediaType: .video).first)
+        #expect(try await track.load(.naturalSize) == CGSize(width: 960, height: 540))
+        #expect(rendered.templateSlug == slug)
+    }
+}
