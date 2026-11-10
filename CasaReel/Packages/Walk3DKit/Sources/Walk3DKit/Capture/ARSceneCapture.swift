@@ -17,13 +17,30 @@ public struct SceneCaptureStatus: Sendable, Equatable {
     public var tracking: Tracking
     public var isFull: Bool
 
-    public var canFinish: Bool { keyframes >= CaptureManifest.minKeyframes }
+    public static let minKeyframes = CaptureManifest.minKeyframes
+    public static let maxKeyframes = CaptureManifest.maxKeyframes
+
+    public init(keyframes: Int, points: Int, tracking: Tracking, isFull: Bool) {
+        self.keyframes = keyframes
+        self.points = points
+        self.tracking = tracking
+        self.isFull = isFull
+    }
+
+    public var canFinish: Bool { keyframes >= Self.minKeyframes }
+    /// How much of the keyframe budget is used, 0–1.
+    public var fraction: Double { Double(keyframes) / Double(Self.maxKeyframes) }
 }
 
 /// A finished capture on disk: `capture.json`, `points.bin` and `frames/`.
 public struct SceneCapture: Sendable, Equatable {
     public let directory: URL
     public let keyframes: Int
+
+    public init(directory: URL, keyframes: Int) {
+        self.directory = directory
+        self.keyframes = keyframes
+    }
 }
 
 /// Records a room walk with ARKit world tracking (no LiDAR needed): keyframe images plus the camera
@@ -203,7 +220,7 @@ final class CaptureRecorder: NSObject, ARSessionDelegate, @unchecked Sendable {
             return
         }
         do {
-            try SceneExporter.writeJPEG(cgImage, to: directory.appending(path: "frames/\(name)"))
+            try JPEGWriter.write(cgImage, to: directory.appending(path: "frames/\(name)"))
         } catch {
             writeFailed = true
             return

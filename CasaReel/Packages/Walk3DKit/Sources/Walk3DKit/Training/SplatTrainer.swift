@@ -6,6 +6,11 @@ import simd
 public struct TrainedScene: Sendable, Equatable {
     public let directory: URL
     public let gaussians: Int
+
+    public init(directory: URL, gaussians: Int) {
+        self.directory = directory
+        self.gaussians = gaussians
+    }
 }
 
 public enum SplatTrainingEvent: Sendable, Equatable {
@@ -118,7 +123,7 @@ public struct SplatTrainer: Sendable {
             }
         }
         let model = session.download()
-        let scene = try write(model: model, cameras: cameras.map(\.0), to: directory)
+        let scene = try write(model: model, cameras: cameras.map(\.0), to: directory, maximumSplatScale: schedule.maxScale)
         onEvent(.progress(1))
         return scene
     }
@@ -150,8 +155,8 @@ public struct SplatTrainer: Sendable {
 
     // MARK: - Output
 
-    static func write(model: GaussianModel, cameras: [CapturedCamera], to directory: URL) throws -> TrainedScene {
-        let splats = model.splatData()
+    static func write(model: GaussianModel, cameras: [CapturedCamera], to directory: URL, maximumSplatScale: Float) throws -> TrainedScene {
+        let splats = model.splatData(maxScale: maximumSplatScale)
         guard !splats.isEmpty else { throw SplatTrainingError.writeFailed }
         do {
             try splats.write(to: directory.appending(path: "scene.splat"), options: .completeFileProtectionUnlessOpen)
@@ -188,7 +193,7 @@ public struct SplatTrainer: Sendable {
         }
         let path: [String: Any] = [
             "format": "casareel-walk3d-path", "version": 1, "coordinates": "arkit_gravity_opencv_camera_to_world",
-            "segments": [["name": "capture", "frames": frames]], "photos": [],
+            "segments": [["name": "capture", "frames": frames]],
         ]
         return try JSONSerialization.data(withJSONObject: path, options: [.sortedKeys])
     }
@@ -198,6 +203,12 @@ public struct SplatTrainer: Sendable {
 struct Schedule {
     let iterations: Int
     let extent: Float
+
+    /// Gaussian size limits (standard deviation, meters), enforced during training and again on export.
+    static let minScale: Float = 0.001
+    /// Longest axis at most this many times the second longest: no needles.
+    static let maxAnisotropy: Float = 8
+    var maxScale: Float { max(0.03, extent * 0.05) }
 
     var densifyFrom: Int { min(500, iterations / 10) }
     var densifyUntil: Int { iterations / 2 }
@@ -211,7 +222,8 @@ struct Schedule {
         return TrainingSession.Step(
             lrA: SIMD4(position, 0.005, 0.001, 0.005),
             lrB: SIMD4(0.05, 1 - pow(0.9, Float(iteration)), 1 - pow(0.999, Float(iteration)), 1),
-            counts: .zero
+            counts: .zero,
+            limits: SIMD4(log(Self.minScale), log(maxScale), log(Self.maxAnisotropy), 0)
         )
     }
 

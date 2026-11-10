@@ -1,7 +1,7 @@
 import Foundation
 import simd
 
-/// One rendered viewpoint. Axes follow COLMAP/OpenCV: the camera looks along +z, y points down on screen.
+/// One rendered viewpoint. The camera looks along +z, with y pointing down on screen.
 public struct CameraPose: Sendable, Equatable {
     public var position: SIMD3<Float>
     /// Unit vector the camera looks along.
@@ -12,7 +12,7 @@ public struct CameraPose: Sendable, Equatable {
     public var fovY: Float
 }
 
-/// The camera poses COLMAP recovered (`path.json` from `convert.py`), turned into a smooth walk.
+/// The keyframe poses ARKit tracked (`path.json` from `SplatTrainer`), turned into a smooth walk.
 struct CameraPath {
     struct File: Decodable {
         struct Pose: Decodable {
@@ -30,10 +30,9 @@ struct CameraPath {
         let format: String
         let version: Int
         let segments: [Segment]
-        let photos: [Pose]
     }
 
-    /// Raw poses in walk order: video frames in time order, or photos chained by proximity when there is no video.
+    /// Raw poses in walk order (capture order).
     let keyframes: [CameraPose]
 
     init(contentsOf url: URL) throws(Walk3DImportError) {
@@ -47,10 +46,7 @@ struct CameraPath {
         guard let file = try? decoder.decode(File.self, from: data), file.format == "casareel-walk3d-path", file.version == 1 else {
             throw .invalidPath
         }
-        let videoPoses = file.segments.flatMap(\.frames).compactMap(Self.pose)
-        let poses = videoPoses.count >= 2 ? videoPoses : Self.chainedByProximity(file.photos.compactMap(Self.pose))
-        guard poses.count >= 2 else { throw .invalidPath }
-        try self.init(keyframes: poses)
+        try self.init(keyframes: file.segments.flatMap(\.frames).compactMap(Self.pose))
     }
 
     init(keyframes: [CameraPose]) throws(Walk3DImportError) {
@@ -68,19 +64,6 @@ struct CameraPath {
         guard simd_length(forward) > 0.5 else { return nil }
         return CameraPose(position: SIMD3(pose.position[0], pose.position[1], pose.position[2]),
                           forward: simd_normalize(forward), up: simd_normalize(-down), fovY: min(max(pose.fovY, 0.5), 1.6))
-    }
-
-    /// Greedy nearest-neighbor chain, starting from the first photo.
-    static func chainedByProximity(_ poses: [CameraPose]) -> [CameraPose] {
-        guard var current = poses.first else { return [] }
-        var remaining = Array(poses.dropFirst())
-        var chain = [current]
-        while !remaining.isEmpty {
-            let nearest = remaining.indices.min { simd_distance(remaining[$0].position, current.position) < simd_distance(remaining[$1].position, current.position) } ?? 0
-            current = remaining.remove(at: nearest)
-            chain.append(current)
-        }
-        return chain
     }
 
     /// Smoothed walk with `frameCount` poses at constant speed along the path.

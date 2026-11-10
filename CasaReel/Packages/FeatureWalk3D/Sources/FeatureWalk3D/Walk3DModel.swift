@@ -1,174 +1,264 @@
+import ARKit
 import Foundation
 import Observation
 import Walk3DKit
 
-/// The Walk 3D flow: gallery photos + videos → package for the Mac → 3D back from the Mac → walk video.
+/// The camera side of the flow; `ARSceneCapture` in the app, a fake in tests.
+@MainActor
+public protocol SceneCapturing: AnyObject {
+    /// World tracking is available (never in the simulator).
+    var canCapture: Bool { get }
+    /// For the camera preview.
+    var session: ARSession { get }
+    func start() throws(SceneCaptureError) -> AsyncStream<SceneCaptureStatus>
+    func finish() async throws(SceneCaptureError) -> SceneCapture
+    func cancel()
+    /// Deletes every capture and the scenes trained from them.
+    func purge()
+}
+
+extension ARSceneCapture: SceneCapturing {
+    public var canCapture: Bool { ARSceneCapture.isSupported }
+}
+
+/// Walk 3D, all on the phone: record the rooms with ARKit → train the 3D → render the walk video.
 @Observable
 @MainActor
 public final class Walk3DModel {
-    public typealias Export = @Sendable (_ photos: [URL], _ videos: [URL]) -> AsyncThrowingStream<SceneExportEvent, any Error>
-    public typealias Render = @Sendable (_ package: URL, _ watermark: Bool) -> AsyncThrowingStream<Walk3DRenderEvent, any Error>
+    public typealias Train = @Sendable (SceneCapture) -> AsyncThrowingStream<SplatTrainingEvent, any Error>
+    public typealias Render = @Sendable (_ scene: TrainedScene, _ watermark: Bool) -> AsyncThrowingStream<Walk3DRenderEvent, any Error>
 
-    public enum MediaState: Equatable {
-        case empty
-        case loading
-        case ready(photos: Int, videos: Int)
+    public enum Phase: Equatable {
+        case idle
+        case capturing(SceneCaptureStatus)
+        /// Saving the keyframes after the host taps "Concluir".
+        case savingCapture
+        case training(progress: Double, pausedForHeat: Bool)
+        case rendering(progress: Double, pausedForHeat: Bool)
+        case finished(Walk3DVideo)
+        case failed(Failure)
+    }
+
+    public enum Failure: Equatable, Sendable {
+        case unsupported
+        case cameraDenied
+        case captureTooShort
+        /// The app left the screen while recording; ARKit may have lost its bearings.
+        case captureInterrupted
+        case insufficientStorage
+        /// The GPU stopped because the app left the screen during training or rendering.
+        case interrupted
+        case overheated
         case failed
     }
 
-    public enum ExportState: Equatable {
-        case idle
-        case exporting(progress: Double)
-        case exported(SceneExportResult)
-        case failed(SceneExportError)
-    }
-
-    public enum RenderState: Equatable {
-        case idle
-        case rendering(progress: Double, pausedForHeat: Bool)
-        case finished(Walk3DVideo)
-        case failed(Walk3DRenderError)
-    }
-
-    public private(set) var media: MediaState = .empty
-    public private(set) var exportState: ExportState = .idle
-    public private(set) var renderState: RenderState = .idle
+    public private(set) var phase: Phase = .idle
     /// The free plan always carries the watermark; the server decides the plan.
     public let watermark: Bool
 
-    private var photos: [URL] = []
-    private var videos: [URL] = []
-    private let export: Export
+    private let capturer: any SceneCapturing
+    private let train: Train
     private let render: Render
-    private var exportTask: Task<Void, Never>?
-    private var renderTask: Task<Void, Never>?
+    private let requestCamera: @Sendable () async -> Bool
+    private let keepAwake: @MainActor (Bool) -> Void
+    /// Kept until a new recording starts, so a failed step can be retried without recording again.
+    private var capture: SceneCapture?
+    private var scene: TrainedScene?
+    private var task: Task<Void, Never>?
+    private var isStartingCapture = false
 
-    public init(watermark: Bool, export: @escaping Export, render: @escaping Render) {
+    public init(watermark: Bool, capturer: any SceneCapturing, train: @escaping Train, render: @escaping Render,
+                requestCamera: @escaping @Sendable () async -> Bool, keepAwake: @escaping @MainActor (Bool) -> Void) {
         self.watermark = watermark
-        self.export = export
+        self.capturer = capturer
+        self.train = train
         self.render = render
+        self.requestCamera = requestCamera
+        self.keepAwake = keepAwake
     }
 
-    public var canExport: Bool {
-        guard case .ready(let photos, let videos) = media else { return false }
-        return photos + videos > 0 && !isExporting
+    public var isSupported: Bool { capturer.canCapture }
+    public var previewSession: ARSession { capturer.session }
+
+    public var isCapturing: Bool {
+        if case .capturing = phase { true } else { false }
     }
 
-    public var isExporting: Bool {
-        if case .exporting = exportState { return true }
-        return false
+    public var isWorking: Bool {
+        if isStartingCapture { return true }
+        switch phase {
+        case .savingCapture, .training, .rendering: return true
+        default: return false
+        }
     }
 
-    public var isRendering: Bool {
-        if case .rendering = renderState { return true }
-        return false
+    /// A failure after the recording was saved can resume from the saved files.
+    public var canRetry: Bool {
+        guard case .failed(let failure) = phase else { return false }
+        return [.interrupted, .overheated, .failed].contains(failure) && (capture != nil || scene != nil)
     }
 
-    // MARK: - Media
+    // MARK: - Capture
 
-    /// Starts loading picked items; `load` returns staged files (or `nil` for an item that failed).
-    func loadMedia(count: Int, load: @escaping @Sendable (Int) async -> PickedMedia?) {
-        exportTask?.cancel()
-        exportState = .idle
-        guard count > 0 else {
-            setMedia(photos: [], videos: [])
+    public func startCapture() {
+        guard !isCapturing, !isWorking else { return }
+        guard capturer.canCapture else {
+            phase = .failed(.unsupported)
             return
         }
-        media = .loading
-        Task {
-            var photos: [URL] = [], videos: [URL] = []
-            for index in 0..<count {
-                switch await load(index) {
-                case .photo(let url): photos.append(url)
-                case .video(let url): videos.append(url)
-                case nil: break
-                }
+        // A new attempt never reuses a partial capture, trained scene, or previous render.
+        discardFiles()
+        isStartingCapture = true
+        task = Task {
+            defer { isStartingCapture = false }
+            guard await requestCamera(), !Task.isCancelled else {
+                if !Task.isCancelled { phase = .failed(.cameraDenied) }
+                return
             }
-            setMedia(photos: photos, videos: videos)
-            if photos.isEmpty, videos.isEmpty { media = .failed }
-        }
-    }
-
-    func setMedia(photos: [URL], videos: [URL]) {
-        removeStaged()
-        self.photos = photos
-        self.videos = videos
-        media = photos.isEmpty && videos.isEmpty ? .empty : .ready(photos: photos.count, videos: videos.count)
-    }
-
-    // MARK: - Export
-
-    public func exportScene() {
-        guard canExport else { return }
-        exportState = .exporting(progress: 0)
-        let stream = export(photos, videos)
-        exportTask = Task {
+            let statuses: AsyncStream<SceneCaptureStatus>
             do {
-                for try await event in stream {
-                    switch event {
-                    case .progress(let value): exportState = .exporting(progress: value)
-                    case .finished(let result): exportState = .exported(result)
-                    }
-                }
+                statuses = try capturer.start()
             } catch {
-                exportState = .failed(error as? SceneExportError ?? .writeFailed)
+                phase = .failed(Self.failure(error))
+                return
+            }
+            phase = .capturing(SceneCaptureStatus(keyframes: 0, points: 0, tracking: .unavailable, isFull: false))
+            for await status in statuses {
+                guard isCapturing else { break }
+                phase = .capturing(status)
+                // The keyframe budget is spent: more walking would not be recorded.
+                if status.isFull { finishCapture() }
             }
         }
     }
 
-    public func cancelExport() {
-        exportTask?.cancel()
-        exportState = .idle
+    public func finishCapture() {
+        guard case .capturing(let status) = phase, status.canFinish else { return }
+        phase = .savingCapture
+        task?.cancel()
+        task = Task {
+            do {
+                let capture = try await capturer.finish()
+                self.capture = capture
+                await process()
+            } catch {
+                phase = .failed(Self.failure(error))
+            }
+        }
     }
 
-    // MARK: - Render
+    public func cancelCapture() {
+        guard isCapturing else { return }
+        task?.cancel()
+        capturer.cancel()
+        discardFiles()
+        phase = .idle
+    }
 
-    /// Renders the 3D package chosen in the Files picker. The file is copied first: the picker's URL
-    /// is only readable while its security scope is open.
-    public func renderPackage(at url: URL) {
-        renderTask?.cancel()
-        let inbox = FileManager.default.temporaryDirectory.appending(path: "CasaReelWalk3DInbox", directoryHint: .isDirectory)
-        let copy = inbox.appending(path: "\(UUID().uuidString).aar")
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+    /// Recording cannot survive the app leaving the screen; training and rendering report it themselves.
+    public func appDidLeaveForeground() {
+        guard isCapturing || isStartingCapture else { return }
+        task?.cancel()
+        isStartingCapture = false
+        if isCapturing { capturer.cancel() }
+        discardFiles()
+        phase = .failed(.captureInterrupted)
+    }
+
+    // MARK: - Processing
+
+    public func retry() {
+        guard canRetry else { return }
+        task = Task { await process() }
+    }
+
+    public func cancelProcessing() {
+        guard isWorking else { return }
+        task?.cancel()
+        keepAwake(false)
+        discardFiles()
+        phase = .idle
+    }
+
+    /// Stops the current flow and removes every temporary recording, scene, and render.
+    public func restart() {
+        task?.cancel()
+        isStartingCapture = false
+        if isCapturing { capturer.cancel() }
+        keepAwake(false)
+        discardFiles()
+        phase = .idle
+    }
+
+    /// Sign-out: stops everything and deletes the recording and the 3D.
+    public func reset() {
+        restart()
+    }
+
+    /// Trains (unless a scene is already trained) and renders, keeping the screen on throughout.
+    private func process() async {
+        keepAwake(true)
+        defer { keepAwake(false) }
+        if scene == nil, let capture { await trainScene(capture) }
+        guard let scene, !Task.isCancelled else { return }
+        await renderVideo(scene)
+    }
+
+    private func trainScene(_ capture: SceneCapture) async {
+        phase = .training(progress: 0, pausedForHeat: false)
         do {
-            try FileManager.default.createDirectory(at: inbox, withIntermediateDirectories: true)
-            try FileManager.default.copyItem(at: url, to: copy)
-        } catch {
-            renderState = .failed(.invalidPackage(.invalidPackage))
-            return
-        }
-        renderState = .rendering(progress: 0, pausedForHeat: false)
-        let stream = render(copy, watermark)
-        renderTask = Task {
-            defer { try? FileManager.default.removeItem(at: copy) }
-            do {
-                for try await event in stream {
-                    switch event {
-                    case .progress(let value): renderState = .rendering(progress: value, pausedForHeat: false)
-                    case .pausedForHeat:
-                        if case .rendering(let progress, _) = renderState { renderState = .rendering(progress: progress, pausedForHeat: true) }
-                    case .finished(let video): renderState = .finished(video)
-                    }
+            for try await event in train(capture) {
+                switch event {
+                case .progress(let value): phase = .training(progress: value, pausedForHeat: false)
+                case .pausedForHeat:
+                    if case .training(let progress, _) = phase { phase = .training(progress: progress, pausedForHeat: true) }
+                case .finished(let scene): self.scene = scene
                 }
-            } catch {
-                renderState = .failed(error as? Walk3DRenderError ?? .writerFailed)
             }
+            if scene == nil, !Task.isCancelled {
+                phase = .failed(.failed)
+            }
+        } catch {
+            if !Task.isCancelled { phase = .failed(Self.failure(error)) }
         }
     }
 
-    public func cancelRender() {
-        renderTask?.cancel()
-        renderState = .idle
+    private func renderVideo(_ scene: TrainedScene) async {
+        phase = .rendering(progress: 0, pausedForHeat: false)
+        var didFinish = false
+        do {
+            for try await event in render(scene, watermark) {
+                switch event {
+                case .progress(let value): phase = .rendering(progress: value, pausedForHeat: false)
+                case .pausedForHeat:
+                    if case .rendering(let progress, _) = phase { phase = .rendering(progress: progress, pausedForHeat: true) }
+                case .finished(let video):
+                    didFinish = true
+                    phase = .finished(video)
+                }
+            }
+            if !didFinish, !Task.isCancelled {
+                phase = .failed(.failed)
+            }
+        } catch {
+            if !Task.isCancelled { phase = .failed(Self.failure(error)) }
+        }
     }
 
-    private func removeStaged() {
-        for url in photos + videos { try? FileManager.default.removeItem(at: url) }
+    private func discardFiles() {
+        capture = nil
+        scene = nil
+        capturer.purge()
     }
-}
 
-/// A picked gallery item, already copied to a file the app owns.
-enum PickedMedia: Sendable {
-    case photo(URL)
-    case video(URL)
+    static func failure(_ error: any Error) -> Failure {
+        switch error {
+        case SceneCaptureError.unsupported: .unsupported
+        case SceneCaptureError.notEnoughKeyframes: .captureTooShort
+        case SceneCaptureError.insufficientStorage: .insufficientStorage
+        case SplatTrainingError.interrupted, Walk3DRenderError.gpuUnavailable: .interrupted
+        case SplatTrainingError.overheated, Walk3DRenderError.overheated: .overheated
+        default: .failed
+        }
+    }
 }

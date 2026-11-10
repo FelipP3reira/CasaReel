@@ -2,17 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CREnvironment</key>
-	<string>$(APP_ENVIRONMENT)</string>
 	<key>CRAPIBaseURL</key>
 	<string>$(API_BASE_URL)</string>
-	<key>CRUniversalLinkHost</key>
-	<string>$(UNIVERSAL_LINK_HOST)</string>
-	<key>CRPublicKeyPins</key>
-	<string>$(PUBLIC_KEY_PINS)</string>
 	<key>CRConfigSigningPublicKey</key>
 	<string>$(CONFIG_SIGNING_PUBLIC_KEY)</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<key>CREnvironment</key>
+	<string>$(APP_ENVIRONMENT)</string>
+	<key>CRPublicKeyPins</key>
+	<string>$(PUBLIC_KEY_PINS)</string>
+	<key>CRUniversalLinkHost</key>
+	<string>$(UNIVERSAL_LINK_HOST)</string>
 </dict>
 </plist>

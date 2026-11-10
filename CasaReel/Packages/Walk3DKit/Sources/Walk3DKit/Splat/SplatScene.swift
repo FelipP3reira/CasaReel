@@ -1,15 +1,14 @@
 import Foundation
 import simd
 
+/// A trained scene's files (`scene.splat`, `path.json`) are missing or broken.
 public enum Walk3DImportError: Error, Sendable, Equatable {
-    /// Not the `.aar` produced by `walk3d.sh`, or it is missing `scene.splat` / `path.json`.
-    case invalidPackage
     case invalidScene
     case invalidPath
     case tooLarge
 }
 
-/// The Gaussians of a scene, as written by `tools/walk3d/convert.py` (32 bytes each, little endian):
+/// The Gaussians of a scene, as written by `GaussianModel.splatData()` (32 bytes each, little endian):
 /// position 3×f32 · scale 3×f32 · RGBA 4×u8 · rotation (w, x, y, z) 4×u8 mapped from −1…1.
 struct SplatScene {
     static let recordSize = 32

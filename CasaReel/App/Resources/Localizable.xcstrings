@@ -192,6 +192,16 @@
         }
       }
     },
+    "Grave andando pelos cômodos e o iPhone gera um vídeo em 3D da casa." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record while walking through the rooms and the iPhone makes a 3D video of the home."
+          }
+        }
+      }
+    },
     "Imóveis" : {
       "localizations" : {
         "en" : {
@@ -429,16 +439,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You have a video in progress"
-          }
-        }
-      }
-    },
-    "Vídeo andando pela casa em 3D, a partir das suas fotos e vídeos." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A video walking through the home in 3D, from your photos and videos."
           }
         }
       }

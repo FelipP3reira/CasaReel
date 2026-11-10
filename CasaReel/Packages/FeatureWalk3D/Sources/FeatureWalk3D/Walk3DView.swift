@@ -1,18 +1,14 @@
 import AVKit
-import CoreTransferable
 import DesignSystem
 import Photos
-import PhotosUI
 import SwiftUI
-import UniformTypeIdentifiers
 import Walk3DKit
 
-/// Walk 3D: real 3D from the host's own photos and videos, rebuilt for free on their Mac.
+/// Walk 3D: record the rooms, and the phone builds the 3D and the walk video by itself.
 public struct Walk3DView: View {
     let model: Walk3DModel
-    @State private var picked: [PhotosPickerItem] = []
-    @State private var isImporting = false
     @State private var isShowingGuide = false
+    @Environment(\.scenePhase) private var scenePhase
     /// Not sensitive: only whether the tutorial was already shown on this device.
     @AppStorage("walk3d.recordingGuideSeen") private var guideSeen = false
 
@@ -23,135 +19,13 @@ public struct Walk3DView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
-                Text(walkString("Transforme fotos e vídeos da casa em um vídeo andando pelos cômodos em 3D de verdade."))
+                Text(walkString("Grave andando pelos cômodos e o iPhone monta o 3D e o vídeo sozinho, sem enviar nada para fora do aparelho."))
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textSecondary)
-                mediaStep
-                macStep
-                videoStep
-            }
-            .padding(Spacing.medium)
-        }
-        .background(DSColor.background)
-        .fileImporter(isPresented: $isImporting, allowedContentTypes: [Self.archiveType]) { result in
-            if case .success(let url) = result { model.renderPackage(at: url) }
-        }
-        .onChange(of: picked) { load(picked) }
-        .sheet(isPresented: $isShowingGuide) {
-            RecordingGuideView(kind: .video3D) {
-                guideSeen = true
-                isShowingGuide = false
-            }
-            .presentationDragIndicator(.visible)
-        }
-        .task {
-            if !guideSeen { isShowingGuide = true }
-        }
-    }
-
-    static let archiveType = UTType(filenameExtension: "aar") ?? .data
-
-    // MARK: - Step 1
-
-    private var mediaStep: some View {
-        Card {
-            VStack(alignment: .leading, spacing: Spacing.small) {
-                StepTitle(number: 1, title: walkString("Escolha fotos e vídeos"))
-                Text(walkString("Use vídeos filmados andando devagar pelos cômodos, com o celular na altura do peito. Evite pessoas, espelhos e documentos à vista."))
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-                Button { isShowingGuide = true } label: {
-                    Label { Text(walkString("Como gravar (tutorial)")) } icon: { Image(systemName: "play.rectangle.on.rectangle") }
-                        .frame(minHeight: TouchTarget.minimum)
-                }
-                PhotosPicker(selection: $picked, maxSelectionCount: SceneExporter.maxPhotos + 10,
-                             matching: .any(of: [.images, .videos]),
-                             // The original file as is: `.automatic` may transcode a long HEVC video first.
-                             preferredItemEncoding: .current, photoLibrary: .shared()) {
-                    Label { Text(walkString("Escolher na galeria")) } icon: { Image(systemName: "photo.stack") }
-                        .frame(maxWidth: .infinity, minHeight: TouchTarget.minimum)
-                }
-                .buttonStyle(.bordered)
-                switch model.media {
-                case .empty:
-                    EmptyView()
-                case .loading:
-                    HStack { ProgressView(); Text(walkString("Carregando…")) }
-                case .ready(let photos, let videos):
-                    Text(walkString("\(photos) fotos e \(videos) vídeos selecionados"))
-                        .font(DSFont.callout)
-                case .failed:
-                    ErrorBanner(walkString("Não foi possível abrir os itens escolhidos."))
-                }
-                exportControls
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var exportControls: some View {
-        switch model.exportState {
-        case .idle:
-            PrimaryButton(walkString("Preparar pacote para o Mac"), systemImage: "shippingbox") { model.exportScene() }
-                .disabled(!model.canExport)
-        case .exporting(let progress):
-            HStack(spacing: Spacing.medium) {
-                ProgressRing(progress: progress).frame(width: 48, height: 48)
-                Text(walkString("Separando os melhores quadros…")).font(DSFont.callout)
-                Spacer()
-                Button(role: .cancel) { model.cancelExport() } label: { Text(walkString("Cancelar")) }
-            }
-        case .exported(let result):
-            Label { Text(walkString("Pacote pronto: \(result.photoCount) fotos e \(result.frameCount) quadros de vídeo")) } icon: {
-                Image(systemName: "checkmark.seal.fill")
-            }
-            .font(DSFont.callout)
-            .foregroundStyle(DSColor.success)
-            ShareLink(item: result.archiveURL) {
-                Label { Text(walkString("Enviar para o Mac")) } icon: { Image(systemName: "airplayaudio") }
-                    .frame(maxWidth: .infinity, minHeight: TouchTarget.minimum)
-            }
-            .buttonStyle(.borderedProminent)
-        case .failed(let error):
-            ErrorBanner(error.message) { model.exportScene() }
-        }
-    }
-
-    // MARK: - Step 2
-
-    private var macStep: some View {
-        Card {
-            VStack(alignment: .leading, spacing: Spacing.small) {
-                StepTitle(number: 2, title: walkString("Monte o 3D no Mac"))
-                Text(walkString("No Mac, rode o script walk3d.sh com o pacote. Ele usa programas gratuitos (COLMAP e Brush) e leva de 30 minutos a 2 horas. No fim, ele cria um arquivo terminado em -3D.aar: envie-o de volta para o iPhone por AirDrop e salve em Arquivos."))
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-            }
-        }
-    }
-
-    // MARK: - Step 3
-
-    private var videoStep: some View {
-        Card {
-            VStack(alignment: .leading, spacing: Spacing.small) {
-                StepTitle(number: 3, title: walkString("Gere o vídeo andando"))
-                switch model.renderState {
-                case .idle:
-                    PrimaryButton(walkString("Importar 3D"), systemImage: "cube.transparent") { isImporting = true }
-                case .rendering(let progress, let pausedForHeat):
-                    HStack(spacing: Spacing.medium) {
-                        ProgressRing(progress: progress).frame(width: 48, height: 48)
-                        Text(pausedForHeat ? walkString("O aparelho esquentou. Continua assim que esfriar.") : walkString("Gerando o vídeo em 3D…"))
-                            .font(DSFont.callout)
-                        Spacer()
-                        Button(role: .cancel) { model.cancelRender() } label: { Text(walkString("Cancelar")) }
-                    }
-                case .finished(let video):
+                recordStep
+                processStep
+                if case .finished(let video) = model.phase {
                     FinishedVideo(video: video)
-                    SecondaryButton(walkString("Importar outro 3D"), systemImage: "cube.transparent") { isImporting = true }
-                case .failed(let error):
-                    ErrorBanner(error.message) { isImporting = true }
                 }
                 if model.watermark {
                     Text(walkString("No plano grátis o vídeo sai com a marca d'água CasaReel."))
@@ -159,23 +33,107 @@ public struct Walk3DView: View {
                         .foregroundStyle(DSColor.textSecondary)
                 }
             }
+            .padding(Spacing.medium)
         }
-    }
-
-    // MARK: - Loading picked items
-
-    private func load(_ items: [PhotosPickerItem]) {
-        model.loadMedia(count: items.count) { index in
-            let item = items[index]
-            if item.supportedContentTypes.contains(where: { $0.conforms(to: .movie) }) {
-                return (try? await item.loadTransferable(type: PickedMovie.self)).flatMap { $0 }.map { .video($0.url) }
+        .background(DSColor.background)
+        .fullScreenCover(isPresented: Binding(get: { model.isCapturing }, set: { if !$0 { model.cancelCapture() } })) {
+            CaptureView(model: model)
+        }
+        .sheet(isPresented: $isShowingGuide) {
+            RecordingGuideView(kind: .video3D) {
+                guideSeen = true
+                isShowingGuide = false
             }
-            return (try? await item.loadTransferable(type: PickedImage.self)).flatMap { $0 }.map { .photo($0.url) }
+            .presentationDragIndicator(.visible)
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .background { model.appDidLeaveForeground() }
+        }
+        .task {
+            if !guideSeen { isShowingGuide = true }
         }
     }
+
+    // MARK: - Step 1
+
+    private var recordStep: some View {
+        Card {
+            VStack(alignment: .leading, spacing: Spacing.small) {
+                StepTitle(number: 1, title: walkString("Grave a casa"))
+                Text(walkString("Ande devagar pelos cômodos com o celular na altura do peito, de 1 a 3 minutos. Evite pessoas, espelhos e documentos à vista."))
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.textSecondary)
+                Button { isShowingGuide = true } label: {
+                    Label { Text(walkString("Como gravar (tutorial)")) } icon: { Image(systemName: "play.rectangle.on.rectangle") }
+                        .frame(minHeight: TouchTarget.minimum)
+                }
+                if model.isSupported {
+                    PrimaryButton(walkString("Gravar"), systemImage: "video.fill") { model.startCapture() }
+                        .disabled(model.isWorking)
+                } else {
+                    ErrorBanner(Failure.unsupported.message)
+                }
+            }
+        }
+    }
+
+    // MARK: - Steps 2 and 3
+
+    private var processStep: some View {
+        Card {
+            VStack(alignment: .leading, spacing: Spacing.small) {
+                StepTitle(number: 2, title: walkString("O iPhone monta o 3D e o vídeo"))
+                switch model.phase {
+                case .idle, .capturing:
+                    Text(walkString("Começa sozinho quando você concluir a gravação. Leva alguns minutos: deixe o app aberto e a tela ligada."))
+                        .font(DSFont.caption)
+                        .foregroundStyle(DSColor.textSecondary)
+                case .savingCapture:
+                    progressRow(nil, label: walkString("Salvando a gravação…"))
+                case .training(let progress, let pausedForHeat):
+                    progressRow(progress, label: pausedForHeat ? Self.heatMessage : walkString("Montando o 3D da casa…"))
+                case .rendering(let progress, let pausedForHeat):
+                    progressRow(progress, label: pausedForHeat ? Self.heatMessage : walkString("Gerando o vídeo andando…"))
+                case .finished:
+                    Label { Text(walkString("Vídeo pronto.")) } icon: { Image(systemName: "checkmark.seal.fill") }
+                        .font(DSFont.callout)
+                        .foregroundStyle(DSColor.success)
+                    SecondaryButton(walkString("Gravar de novo"), systemImage: "video") { model.startCapture() }
+                case .failed(let failure):
+                    ErrorBanner(failure.message, retry: model.canRetry ? { model.retry() } : nil)
+                    if failure != .unsupported {
+                        SecondaryButton(walkString("Gravar de novo"), systemImage: "video") { model.startCapture() }
+                    }
+                }
+            }
+        }
+    }
+
+    private static let heatMessage = walkString("O aparelho esquentou. Continua assim que esfriar.")
+
+    private func progressRow(_ progress: Double?, label: LocalizedStringResource) -> some View {
+        HStack(spacing: Spacing.medium) {
+            if let progress {
+                ProgressRing(progress: progress).frame(width: 48, height: 48)
+            } else {
+                ProgressView()
+            }
+            VStack(alignment: .leading) {
+                Text(label).font(DSFont.callout)
+                Text(walkString("Deixe o app aberto e a tela ligada."))
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
+            Spacer()
+            Button(role: .cancel) { model.cancelProcessing() } label: { Text(walkString("Cancelar")) }
+                .frame(minHeight: TouchTarget.minimum)
+        }
+    }
+
+    typealias Failure = Walk3DModel.Failure
 }
 
-private struct StepTitle: View {
+struct StepTitle: View {
     let number: Int
     let title: LocalizedStringResource
 
@@ -218,7 +176,7 @@ private struct FinishedVideo: View {
     }
 
     /// Asks for add-only access at the moment the user saves, never before.
-    private static func save(_ url: URL) async -> LocalizedStringResource {
+    private nonisolated static func save(_ url: URL) async -> LocalizedStringResource {
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
         guard status == .authorized || status == .limited else {
             return walkString("Sem permissão para salvar. Ative em Ajustes > CasaReel > Fotos.")
@@ -234,60 +192,19 @@ private struct FinishedVideo: View {
     }
 }
 
-// MARK: - Picked files
-
-/// The original file of a picked photo, streamed to disk; the picker runs out of process,
-/// so no photo-library permission is needed to read.
-struct PickedImage: Transferable {
-    let url: URL
-
-    static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(importedContentType: .image) { PickedImage(url: try Inbox.keep($0.file)) }
-    }
-}
-
-/// Same for videos, which can be large: never loaded in memory.
-struct PickedMovie: Transferable {
-    let url: URL
-
-    static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(importedContentType: .movie) { PickedMovie(url: try Inbox.keep($0.file)) }
-    }
-}
-
-enum Inbox {
-    /// The received file is only valid inside the transfer closure: copy it somewhere the app owns.
-    static func keep(_ file: URL) throws -> URL {
-        let inbox = FileManager.default.temporaryDirectory.appending(path: "CasaReelWalk3DInbox", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: inbox, withIntermediateDirectories: true,
-                                                attributes: [.protectionKey: FileProtectionType.completeUnlessOpen])
-        let copy = inbox.appending(path: UUID().uuidString).appendingPathExtension(file.pathExtension)
-        try FileManager.default.copyItem(at: file, to: copy)
-        return copy
-    }
-}
-
 // MARK: - Messages
 
-extension SceneExportError {
+extension Walk3DModel.Failure {
     var message: LocalizedStringResource {
         switch self {
-        case .noMedia: walkString("Escolha pelo menos uma foto ou um vídeo.")
-        case .notEnoughImages: walkString("Poucas imagens para montar o 3D. Adicione um vídeo andando pelos cômodos.")
-        case .unreadableMedia: walkString("Um dos vídeos não pôde ser lido.")
+        case .unsupported: walkString("Este aparelho não grava em 3D (o simulador também não).")
+        case .cameraDenied: walkString("Sem acesso à câmera. Ative em Ajustes > CasaReel > Câmera.")
+        case .captureTooShort: walkString("A gravação ficou curta demais. Ande um pouco mais pelos cômodos.")
+        case .captureInterrupted: walkString("A gravação parou porque o app saiu da tela. Grave de novo.")
         case .insufficientStorage: walkString("Pouco espaço livre no iPhone.")
-        case .writeFailed, .cancelled: walkString("Não foi possível preparar o pacote.")
-        }
-    }
-}
-
-extension Walk3DRenderError {
-    var message: LocalizedStringResource {
-        switch self {
-        case .invalidPackage: walkString("Esse arquivo não é um 3D gerado pelo script do CasaReel.")
-        case .gpuUnavailable: walkString("Não foi possível desenhar o 3D neste aparelho.")
+        case .interrupted: walkString("O app saiu da tela e o processamento parou. Toque em Tentar de novo.")
         case .overheated: walkString("O aparelho esquentou demais. Tente de novo em alguns minutos.")
-        case .writerFailed, .cancelled: walkString("Não foi possível gerar o vídeo.")
+        case .failed: walkString("Não foi possível gerar o vídeo.")
         }
     }
 }

@@ -2,10 +2,10 @@ import DesignSystem
 import SwiftUI
 
 /// "Como gravar": a short, swipeable tutorial shown before picking media.
-/// The 3D guide matters most: a bad recording only shows up after hours of processing on the Mac.
+/// The 3D guide matters most: a bad recording can compromise the on-device result.
 public struct RecordingGuideView: View {
     public enum Kind: Sendable {
-        /// Videos for the real 3D walk (COLMAP + Brush).
+        /// The in-app recording for the real 3D walk.
         case video3D
         /// Photos for the 2.5D "Walk 3D" template.
         case photos
@@ -96,13 +96,13 @@ enum GuideContent {
         ),
         GuidePage(
             illustration: .symbol("camera"),
-            title: walkString("Configure a câmera"),
-            subtitle: walkString("Use o app Câmera do iPhone, no modo Vídeo."),
+            title: walkString("Grave pelo CasaReel"),
+            subtitle: walkString("A gravação é feita aqui no app: é ela que diz ao iPhone onde a câmera estava."),
             tips: [
-                GuideTip(kind: .doThis, text: walkString("Lente 1× e sem zoom durante a gravação."), symbol: "camera.aperture"),
                 GuideTip(kind: .doThis, text: walkString("Celular deitado (na horizontal): pega mais do cômodo."), symbol: "iphone.landscape"),
                 GuideTip(kind: .doThis, text: walkString("Limpe a lente antes de começar."), symbol: "hand.raised"),
-                GuideTip(kind: .avoid, text: walkString("Não use os modos Cinematográfico, Ação, Câmera lenta ou Timelapse."), symbol: "film"),
+                GuideTip(kind: .doThis, text: walkString("Siga os avisos na tela: se pedir para ir mais devagar, vá."), symbol: "exclamationmark.bubble"),
+                GuideTip(kind: .avoid, text: walkString("Não saia do app nem atenda chamadas durante a gravação."), symbol: "phone.down"),
             ]
         ),
         GuidePage(
@@ -112,7 +112,7 @@ enum GuideContent {
             tips: [
                 GuideTip(kind: .doThis, text: walkString("Use as duas mãos, com os cotovelos junto ao corpo."), symbol: "hands.clap"),
                 GuideTip(kind: .doThis, text: walkString("Câmera reta: nem para o chão, nem para o teto."), symbol: "level"),
-                GuideTip(kind: .avoid, text: walkString("Não gire o celular de deitado para em pé no meio do vídeo."), symbol: "rotate.right"),
+                GuideTip(kind: .avoid, text: walkString("Não cubra a câmera com os dedos."), symbol: "hand.raised.slash"),
             ]
         ),
         GuidePage(
@@ -132,8 +132,8 @@ enum GuideContent {
             subtitle: walkString("É a passagem pelas portas que liga os cômodos no 3D."),
             tips: [
                 GuideTip(kind: .doThis, text: walkString("Continue gravando ao atravessar a porta, de frente e devagar."), symbol: "door.left.hand.open"),
-                GuideTip(kind: .doThis, text: walkString("De 1 a 3 minutos por vídeo. Uma casa inteira cabe em 2 ou 3 vídeos."), symbol: "timer"),
-                GuideTip(kind: .doThis, text: walkString("Se parar, comece o próximo vídeo de onde o anterior terminou."), symbol: "arrow.right.to.line"),
+                GuideTip(kind: .doThis, text: walkString("Uma gravação de 1 a 3 minutos. O app avisa quando já dá para gerar."), symbol: "timer"),
+                GuideTip(kind: .doThis, text: walkString("Casa grande? Priorize os cômodos principais: a gravação tem limite."), symbol: "house"),
             ]
         ),
         GuidePage(
@@ -144,18 +144,18 @@ enum GuideContent {
                 GuideTip(kind: .avoid, text: walkString("Espelhos e vidros grandes: o 3D \"vê\" um cômodo que não existe."), symbol: "rectangle.portrait"),
                 GuideTip(kind: .avoid, text: walkString("Filmar contra janelas com sol direto."), symbol: "sun.max"),
                 GuideTip(kind: .avoid, text: walkString("Chegar muito perto de paredes lisas ou cantos escuros."), symbol: "square.dashed"),
-                GuideTip(kind: .avoid, text: walkString("Movimentos bruscos e vídeo tremido."), symbol: "waveform.path"),
+                GuideTip(kind: .avoid, text: walkString("Movimentos bruscos e câmera tremida."), symbol: "waveform.path"),
             ]
         ),
         GuidePage(
             illustration: .symbol("checkmark.seal"),
             title: walkString("Resumo rápido"),
-            subtitle: walkString("Depois, escolha os vídeos (e, se quiser, as fotos do anúncio) no passo 1."),
+            subtitle: walkString("Depois, toque em Gravar: o iPhone monta o 3D e o vídeo sozinho."),
             tips: [
                 GuideTip(kind: .doThis, text: walkString("Luzes acesas, casa arrumada, ninguém no caminho."), symbol: "lightbulb"),
-                GuideTip(kind: .doThis, text: walkString("Modo Vídeo, lente 1×, celular deitado na altura do peito."), symbol: "camera"),
+                GuideTip(kind: .doThis, text: walkString("Celular deitado, na altura do peito, câmera reta."), symbol: "camera"),
                 GuideTip(kind: .doThis, text: walkString("Ande devagar, vire devagar, sem parar nas portas."), symbol: "figure.walk"),
-                GuideTip(kind: .doThis, text: walkString("Fotos do anúncio ajudam nos detalhes, mas o vídeo é essencial."), symbol: "photo.on.rectangle"),
+                GuideTip(kind: .doThis, text: walkString("No fim, deixe o app aberto até o vídeo ficar pronto."), symbol: "iphone"),
             ]
         ),
     ]

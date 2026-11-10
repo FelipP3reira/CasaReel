@@ -16,13 +16,11 @@ func splatRecord(position: SIMD3<Float>, scale: SIMD3<Float>, rgba: (UInt8, UInt
 }
 
 /// path.json with a straight walk along +z, looking forward, y down (OpenCV).
-func pathJSON(positions: [SIMD3<Float>], photosOnly: Bool = false) -> Data {
+func pathJSON(positions: [SIMD3<Float>]) -> Data {
     let poses = positions.enumerated().map { index, p in
         #"{"image":"video_01/frame_\#(index).jpg","position":[\#(p.x),\#(p.y),\#(p.z)],"rotation":[[1,0,0],[0,1,0],[0,0,1]],"fov_y":1.0,"aspect":0.5625}"#
     }.joined(separator: ",")
-    let segments = photosOnly ? "[]" : #"[{"name":"video_01","frames":[\#(poses)]}]"#
-    let photos = photosOnly ? "[\(poses)]" : "[]"
-    return Data(#"{"format":"casareel-walk3d-path","version":1,"coordinates":"colmap_opencv_camera_to_world","segments":\#(segments),"photos":\#(photos)}"#.utf8)
+    return Data(#"{"format":"casareel-walk3d-path","version":1,"segments":[{"name":"capture","frames":[\#(poses)]}]}"#.utf8)
 }
 
 struct SplatSceneTests {
@@ -67,11 +65,6 @@ struct CameraPathTests {
         #expect(steps.allSatisfy { abs($0 - 0.3) < 1e-3 }, "\(steps)")
         #expect(walk.allSatisfy { simd_distance($0.up, [0, -1, 0]) < 1e-4 }, "OpenCV y is down, so up is −y")
         #expect(walk.first?.position == [0, 0, 0] && walk.last.map { simd_distance($0.position, [0, 0, 3]) < 1e-4 } == true)
-    }
-
-    @Test func photosAreChainedByProximityWhenThereIsNoVideo() throws {
-        let path = try CameraPath(data: pathJSON(positions: [[0, 0, 0], [5, 0, 0], [1, 0, 0]], photosOnly: true))
-        #expect(path.keyframes.map(\.position) == [[0, 0, 0], [1, 0, 0], [5, 0, 0]])
     }
 
     @Test func rejectsUnknownOrTooShortPaths() {
@@ -145,7 +138,7 @@ struct SplatRendererTests {
 }
 
 struct Walk3DVideoRendererTests {
-    @Test func rendersAWalkVideoFromAPackage() async throws {
+    @Test func rendersAWalkVideoFromATrainedScene() async throws {
         let fixtures = try MediaFixtures()
         let source = fixtures.directory.appending(path: "result", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: source, withIntermediateDirectories: true)
@@ -157,12 +150,10 @@ struct Walk3DVideoRendererTests {
         }
         try splats.write(to: source.appending(path: "scene.splat"))
         try pathJSON(positions: (0..<20).map { [0, 0, Float($0) * 0.2] }).write(to: source.appending(path: "path.json"))
-        let package = fixtures.directory.appending(path: "walk-3D.aar")
-        try SceneArchive.write(directory: source, to: package)
 
         let renderer = Walk3DVideoRenderer(workDirectory: fixtures.directory.appending(path: "renders"))
         var video: Walk3DVideo?
-        for try await event in renderer.render(package: package, options: .init(width: 180, height: 320, fps: 10)) {
+        for try await event in renderer.render(scene: TrainedScene(directory: source, gaussians: 30), options: .init(width: 180, height: 320, fps: 10)) {
             if case .finished(let finished) = event { video = finished }
         }
         let output = try #require(video)
@@ -171,13 +162,11 @@ struct Walk3DVideoRendererTests {
         #expect(abs(duration - 12) < 0.2)
     }
 
-    @Test func rejectsSomethingThatIsNotAWalkPackage() async throws {
+    @Test func rejectsAMissingScene() async throws {
         let fixtures = try MediaFixtures()
-        let bogus = fixtures.directory.appending(path: "bogus.aar")
-        try Data("nope".utf8).write(to: bogus)
         let renderer = Walk3DVideoRenderer(workDirectory: fixtures.directory.appending(path: "renders"))
-        await #expect(throws: Walk3DRenderError.invalidPackage(.invalidPackage)) {
-            for try await _ in renderer.render(package: bogus) {}
+        await #expect(throws: Walk3DRenderError.invalidScene(.invalidScene)) {
+            for try await _ in renderer.render(scene: TrainedScene(directory: fixtures.directory, gaussians: 0)) {}
         }
     }
 

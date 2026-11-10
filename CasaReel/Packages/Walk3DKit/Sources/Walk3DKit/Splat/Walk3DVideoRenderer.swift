@@ -23,14 +23,14 @@ public enum Walk3DRenderEvent: Sendable, Equatable {
 }
 
 public enum Walk3DRenderError: Error, Sendable, Equatable {
-    case invalidPackage(Walk3DImportError)
+    case invalidScene(Walk3DImportError)
     case gpuUnavailable
     case writerFailed
     case overheated
     case cancelled
 }
 
-/// Imports the `.aar` made by `tools/walk3d/walk3d.sh` and renders the walk as an MP4.
+/// Renders the walk through a `TrainedScene` as an MP4.
 public struct Walk3DVideoRenderer: Sendable {
     public struct Options: Sendable {
         public var width = 1080
@@ -58,11 +58,11 @@ public struct Walk3DVideoRenderer: Sendable {
         self.workDirectory = workDirectory
     }
 
-    public func render(package: URL, options: Options = Options()) -> AsyncThrowingStream<Walk3DRenderEvent, any Error> {
+    public func render(scene: TrainedScene, options: Options = Options()) -> AsyncThrowingStream<Walk3DRenderEvent, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task.detached(priority: .userInitiated) {
                 do {
-                    let video = try await run(package: package, options: options) { continuation.yield($0) }
+                    let video = try await run(scene: scene.directory, options: options) { continuation.yield($0) }
                     continuation.yield(.finished(video))
                     continuation.finish()
                 } catch {
@@ -73,7 +73,7 @@ public struct Walk3DVideoRenderer: Sendable {
         }
     }
 
-    /// Deletes rendered videos and unpacked scenes.
+    /// Deletes rendered videos.
     public func purge() {
         try? FileManager.default.removeItem(at: workDirectory)
     }
@@ -83,10 +83,10 @@ public struct Walk3DVideoRenderer: Sendable {
         min(max(Double(keyframes) * 0.25, 12), 45)
     }
 
-    private func run(package: URL, options: Options, onEvent: @Sendable (Walk3DRenderEvent) -> Void) async throws -> Walk3DVideo {
+    private func run(scene directory: URL, options: Options, onEvent: @Sendable (Walk3DRenderEvent) -> Void) async throws -> Walk3DVideo {
         let job = workDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: job, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.completeUnlessOpen])
-        let (scene, path) = try Self.load(package: package, into: job)
+        let (scene, path) = try Self.load(directory)
         onEvent(.progress(0))
         let renderer: SplatRenderer
         do {
@@ -103,22 +103,15 @@ public struct Walk3DVideoRenderer: Sendable {
             try? FileManager.default.removeItem(at: output)
             throw error
         }
-        try? FileManager.default.removeItem(at: job.appending(path: "scene.splat"))
         return Walk3DVideo(fileURL: output, durationMs: poses.count * 1000 / options.fps)
     }
 
-    static func load(package: URL, into directory: URL) throws -> (SplatScene, CameraPath) {
-        let files: [String: URL]
+    static func load(_ directory: URL) throws -> (SplatScene, CameraPath) {
         do {
-            files = try SceneArchive.extract(["scene.splat", "path.json"], from: package, to: directory)
+            return (try SplatScene(contentsOf: directory.appending(path: "scene.splat")),
+                    try CameraPath(contentsOf: directory.appending(path: "path.json")))
         } catch {
-            throw Walk3DRenderError.invalidPackage(.invalidPackage)
-        }
-        guard let sceneURL = files["scene.splat"], let pathURL = files["path.json"] else { throw Walk3DRenderError.invalidPackage(.invalidPackage) }
-        do {
-            return (try SplatScene(contentsOf: sceneURL), try CameraPath(contentsOf: pathURL))
-        } catch {
-            throw Walk3DRenderError.invalidPackage(error)
+            throw Walk3DRenderError.invalidScene(error)
         }
     }
 

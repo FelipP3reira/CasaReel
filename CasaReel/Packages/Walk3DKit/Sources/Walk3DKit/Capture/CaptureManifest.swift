@@ -11,7 +11,7 @@ public enum SceneCaptureError: Error, Sendable, Equatable {
     case invalidCapture
 }
 
-/// Pinhole camera of one keyframe. Axes follow COLMAP/OpenCV: x right, y down, z forward.
+/// Pinhole camera of one keyframe. Axes follow the OpenCV camera convention: x right, y down, z forward.
 public struct CapturedCamera: Sendable, Equatable {
     public var fx: Float, fy: Float, cx: Float, cy: Float
     public var width: Int, height: Int

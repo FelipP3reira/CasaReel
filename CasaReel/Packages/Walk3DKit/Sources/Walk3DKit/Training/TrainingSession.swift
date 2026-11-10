@@ -17,6 +17,8 @@ final class TrainingSession {
         /// opacity, 1 − β1^t, 1 − β2^t, apply (0 = gradients only).
         var lrB: SIMD4<Float>
         var counts: SIMD4<UInt32>
+        /// log min scale, log max scale, log max ratio of the two longest axes. The default leaves shapes free.
+        var limits = SIMD4<Float>(log(1e-6), log(1e6), log(1e6), 0)
     }
 
     static let screenStride = 12

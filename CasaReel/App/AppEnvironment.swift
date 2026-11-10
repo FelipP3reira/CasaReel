@@ -24,7 +24,8 @@ struct AppEnvironment: Sendable {
     let power: any PowerStatusProviding
     let photoAnalyzer: any PhotoAnalyzing
     let videoRenderer: any VideoRenderer
-    let walk3DExporter: SceneExporter
+    let walk3DCapture: ARSceneCapture
+    let walk3DTrainer: SplatTrainer
     let walk3DRenderer: Walk3DVideoRenderer
     let localStore: any LocalStore
 
@@ -82,7 +83,8 @@ struct AppEnvironment: Sendable {
             power: DevicePowerStatus(),
             photoAnalyzer: PhotoAnalysisService(),
             videoRenderer: VideoEngineRenderer(library: templates, depthEstimator: CoreMLDepthEstimator(), keepAwake: keepScreenAwake),
-            walk3DExporter: SceneExporter(),
+            walk3DCapture: ARSceneCapture(),
+            walk3DTrainer: SplatTrainer(),
             walk3DRenderer: Walk3DVideoRenderer(),
             localStore: SwiftDataLocalStore()
         )
@@ -110,7 +112,7 @@ struct AppEnvironment: Sendable {
     /// Photos staged or prepared by a previous run (app killed mid-selection) are never reused: delete them.
     private static func purgeLeftoverPhotoFiles() {
         let temporary = FileManager.default.temporaryDirectory
-        for folder in ["CasaReelPhotos", "CasaReelInbox", "CasaReelRenders", "CasaReelWalk3D", "CasaReelWalk3DInbox", "CasaReelWalk3DRenders"] {
+        for folder in ["CasaReelPhotos", "CasaReelInbox", "CasaReelRenders", "CasaReelWalk3DCapture", "CasaReelWalk3DRenders"] {
             try? FileManager.default.removeItem(at: temporary.appending(path: folder, directoryHint: .isDirectory))
         }
     }

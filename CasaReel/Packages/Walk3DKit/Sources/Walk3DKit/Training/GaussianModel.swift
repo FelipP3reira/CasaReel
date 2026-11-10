@@ -215,14 +215,19 @@ struct GaussianModel {
     // MARK: - Export
 
     /// The 32-byte records `SplatScene` reads; nearly invisible Gaussians are dropped.
-    func splatData(minOpacity: Float = 0.02) -> Data {
+    ///
+    /// Training already keeps scales within `Schedule`'s limits; the clamp here is a last guard so a
+    /// single bad Gaussian cannot cover the video.
+    func splatData(minOpacity: Float = 0.02, maxScale: Float) -> Data {
         var data = Data(capacity: count * SplatScene.recordSize)
         for index in 0..<count {
             let base = index * Self.stride
             let opacity = self.opacity(index)
-            let position = self.position(index), scale = self.scale(index)
+            let position = self.position(index)
+            let scale = self.scale(index)
             guard opacity >= minOpacity, position.allFinite, scale.allFinite else { continue }
-            for value in [position.x, position.y, position.z, scale.x, scale.y, scale.z] {
+            let safeScale = simd_min(simd_max(scale, SIMD3(repeating: Schedule.minScale)), SIMD3(repeating: maxScale))
+            for value in [position.x, position.y, position.z, safeScale.x, safeScale.y, safeScale.z] {
                 withUnsafeBytes(of: value.bitPattern.littleEndian) { data.append(contentsOf: $0) }
             }
             func byte(_ value: Float) -> UInt8 { UInt8(min(max((value * 255).rounded(), 0), 255)) }

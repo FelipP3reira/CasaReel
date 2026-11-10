@@ -80,6 +80,26 @@ struct TrainingConvergenceTests {
     }
 }
 
+struct ShapeLimitTests {
+    /// With every learning rate at zero, only the shape projection can change the Gaussians.
+    @Test func needlesAreShortenedAndDiscsAreKept() throws {
+        var params = GaussianModel.gaussian(position: SIMD3(0, 0, 3), logScale: log(SIMD3(0.5, 0.01, 0.01)), color: SIMD3(repeating: 0.5), opacity: 0.5)
+        params += GaussianModel.gaussian(position: SIMD3(0.2, 0, 3), logScale: log(SIMD3(0.04, 0.04, 0.001)), color: SIMD3(repeating: 0.5), opacity: 0.5)
+        let view = TrainingView(camera: frontCamera(width: 32, height: 32, focal: 30), background: SplatTrainer.background)
+        let session = try TrainingSession(model: GaussianModel(params: params), views: [view], images: [solidImage(width: 32, height: 32, rgb: (0, 0, 0))], capacity: 4)
+        let schedule = Schedule(iterations: 100, extent: 1)
+        var step = schedule.step(1)
+        step.lrA = .zero
+        step.lrB.x = 0
+        try session.run(viewIndex: 0, step: step)
+        let model = session.download()
+        let needle = model.scale(0), disc = model.scale(1)
+        #expect(abs(needle.x - 0.01 * Schedule.maxAnisotropy) < 1e-4, "longest axis capped at 8× the second: \(needle)")
+        #expect(needle.max() <= schedule.maxScale + 1e-5)
+        #expect(simd_distance(disc, SIMD3(0.04, 0.04, 0.001)) < 1e-5, "flat discs are left alone: \(disc)")
+    }
+}
+
 struct TileBinnerTests {
     private func bin(rects: [SIMD4<UInt32>], depths: [Float], tilesX: Int, tiles: Int, capacity: Int) -> ([SIMD2<UInt32>], [UInt32]) {
         var ranges = [SIMD2<UInt32>](repeating: .zero, count: tiles)
@@ -158,7 +178,7 @@ struct GaussianModelTests {
     @Test func exportIsReadableBySplatScene() throws {
         var params = GaussianModel.gaussian(position: SIMD3(1, 2, 3), logScale: SIMD3(repeating: log(0.1)), color: SIMD3(0.9, 0.1, 0.5), opacity: 0.8)
         params += GaussianModel.gaussian(position: .zero, logScale: .zero, color: SIMD3(repeating: 0.5), opacity: 0.005)
-        let scene = try SplatScene(data: GaussianModel(params: params).splatData())
+        let scene = try SplatScene(data: GaussianModel(params: params).splatData(maxScale: 1))
         #expect(scene.count == 1)
         #expect(scene.splats[0].position.0 == 1)
         #expect(scene.splats[0].color & 0xff == 230)
@@ -189,7 +209,7 @@ struct SplatTrainerTests {
         for index in 0..<CaptureManifest.minKeyframes {
             let name = String(format: "frame_%05d.jpg", index + 1)
             let image = try #require(MediaFixtures.image(width: 96, height: 72, offset: index))
-            try SceneExporter.writeJPEG(image, to: frames.appending(path: name))
+            try JPEGWriter.write(image, to: frames.appending(path: name))
             var c2w = matrix_identity_float4x4
             c2w.columns.3 = SIMD4(Float(index) * 0.05 - 0.5, 0, 0, 1)
             manifestFrames.append(CaptureManifest.frame(image: name, camera: CapturedCamera(fx: 80, fy: 80, cx: 47.5, cy: 35.5, width: 96, height: 72, cameraToWorld: c2w)))

@@ -2,6 +2,19 @@
 
 > Registro curto de cada sessão de trabalho com o assistente, para não perder contexto entre conversas. Mais recente no topo.
 
+## 2026-11-10 (parte 7): primeiro teste no iPhone 15 e correção das "agulhas"
+- No aparelho: gravar → treinar → vídeo funcionou (cômodo reconhecível), com riscos compridos e borrão; o iPhone esquenta muito; o Metal falha se o app sai da tela. Outra sessão corrigiu o crash em "Salvar na galeria" (PhotoKit na fila errada), adicionou a permissão de adicionar à Fototeca, criou o target `CasaReelTests` e limitou a escala na exportação e no shader.
+- Correção de raiz: `backwardStep` limita a forma de cada Gaussian a cada passo (escala de 1 mm a `max(3 cm, 5% da cena)`; eixo mais longo ≤ 8× o segundo). Teste `ShapeLimitTests`; o `exportIsReadableBySplatScene`, que não compilava, foi corrigido.
+- Prints do interior da casa tirados do repositório (a pasta `App/` é sincronizada e os levaria para dentro do app); estão em `~/Desktop/CasaReel-prints/`.
+- Testes: o assistente não consegue mais rodar o executor do simulador ("Pseudo Terminal Setup Error"); o dono rodou no Xcode (⌘U) Walk3DKit e FeatureWalk3D, sem falhas.
+
+## 2026-11-10 (parte 6): Walk 3D no aparelho, etapa 3 (tela única)
+- `FeatureWalk3D`: `Walk3DModel` novo (gravar → treinar → vídeo; protocolo `SceneCapturing` para testar sem câmera), `CaptureView` (câmera em tela cheia + avisos), `Walk3DView` em 2 passos, tutorial ajustado para a gravação no app, catálogo pt-BR/en revisado (37 textos novos, 36 do fluxo do Mac removidos).
+- App: `AppEnvironment` com `ARSceneCapture` + `SplatTrainer`; `RootView` liga tudo (câmera pedida só no "Gravar", tela acesa durante o processamento, `reset()` ao sair da conta); `NSCameraUsageDescription`; limpeza de `CasaReelWalk3DCapture` ao abrir o app.
+- Removido o fluxo do Mac: `Walk3DKit/Export`, `Archive`, `tools/walk3d`, escolha de fotos/vídeos da galeria no Walk 3D, linhas do `.gitignore`.
+- Verificado: Walk3DKit 39/39, FeatureWalk3D 15/15, app compila sem warnings novos. **Não testado no aparelho** (o simulador não tem ARKit).
+- A sessão do assistente caiu duas vezes por falta de memória (Mac de 8 GB com Xcode + simulador). Agora o simulador é desligado depois de cada rodada de testes.
+
 ## 2026-11-10 (parte 5): Walk 3D no aparelho, etapa 2 (treino em Metal)
 - `Walk3DKit/Training`: `TrainingShaders` (preprocess, rasterizeForward, rasterizeBackward com soma por grupo SIMD antes do atômico, backwardStep com Adam), `TrainingSession` (buffers e um passo), `TileBinner` (ordenação por contagem + blocos, ponteiros brutos), `GaussianModel` (início, densificação, exportação), `TrainingView`, `SplatTrainer` (API pública, cronograma, calor, saída).
 - Verificado: Walk3DKit 49/49, incluindo conferência dos gradientes por diferenças finitas (cor/opacidade/x < 1%; tamanho/rotação/z 4–7% por causa do corte de alfa 1/255), perda que cai num quadro e treino de ponta a ponta numa captura sintética. App compila sem warnings.

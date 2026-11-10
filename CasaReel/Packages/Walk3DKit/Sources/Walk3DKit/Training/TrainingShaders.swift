@@ -30,6 +30,7 @@ enum TrainingShaders {
         float4 lrA;             // position, scale, rotation, color
         float4 lrB;             // opacity, 1 − β1^t, 1 − β2^t, apply
         uint4 counts;           // gaussians
+        float4 limits;          // log min scale, log max scale, log max ratio of the two longest axes
     };
 
     struct Geometry {
@@ -320,6 +321,14 @@ enum TrainingShaders {
             vi[i] = 0.999 * vi[i] + 0.001 * gr[i] * gr[i];
             p[i] -= lr * (mi[i] / step.lrB.y) / (sqrt(vi[i] / step.lrB.z) + 1e-15);
         }
+        // Projected back into the allowed shapes after every step, so training adapts to the limits
+        // instead of the export cutting them later. Capping the longest axis against the second one
+        // removes needles (the streaks in the video) and keeps flat discs, which walls are made of.
+        float3 ls = clamp(float3(p[3], p[4], p[5]), step.limits.x, step.limits.y);
+        float longest = max(ls.x, max(ls.y, ls.z)), shortest = min(ls.x, min(ls.y, ls.z));
+        float middle = ls.x + ls.y + ls.z - longest - shortest;
+        ls = min(ls, middle + step.limits.z);
+        p[3] = ls.x; p[4] = ls.y; p[5] = ls.z;
     }
     """
 }

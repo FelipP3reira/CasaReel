@@ -12,7 +12,7 @@ public enum AppRoute: Hashable, Sendable {
     case propertyDetail(id: UUID)
     case photoPicker
     case videoEditor
-    /// Real 3D walk-through from the host's photos and videos (reconstructed on their Mac).
+    /// On-device 3D walk-through recorded with ARKit and processed on the iPhone.
     case walk3D
     case subscription
     case privacy

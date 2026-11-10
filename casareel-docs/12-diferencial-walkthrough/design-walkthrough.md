@@ -1,6 +1,6 @@
 # CasaReel Walk — vídeo "andando pelo imóvel" a partir de fotos
 
-> Status (2026-11-10): **Nível 1 implementado** (template `walk-tour`, grátis com marca d'água). **Walk 3D real implementado** (fotos + vídeos da galeria → Mac com COLMAP + Brush → vídeo no iPhone), ver seção 8. Nível 2 (IA generativa) descartado: custo e risco de anúncio enganoso.
+> Status (2026-11-10): **Nível 1 implementado** (template `walk-tour`, grátis com marca d'água). **Walk 3D real 100% no iPhone** (gravação com ARKit → treino em Metal → vídeo, sem Mac nem servidor), ver seção 9. O fluxo pelo Mac (seção 8) foi removido. Nível 2 (IA generativa) descartado: custo e risco de anúncio enganoso.
 
 ## 1. A ideia
 
@@ -76,7 +76,8 @@ Novos tipos e módulos (seguindo `07-app-ios/arquitetura-ios.md`):
 - [x] Nível 2 (IA generativa): **descartado**. Tudo deve ser gratuito.
 - [x] "Fase 2 do Walk": 3D real a partir das **fotos e vídeos da galeria** do anfitrião, processado **no Mac** com ferramentas gratuitas (sem servidor pago).
 
-## 8. Walk 3D real (implementado)
+## 8. Walk 3D real pelo Mac (removido em 2026-11-10)
+> Substituído pela seção 9: o dono não quer levar arquivos para o Mac e trazer de volta. O código (`Walk3DKit/Export`, `Archive`, `tools/walk3d`) foi apagado; fica no histórico do git (commit `69e0e79`). O texto abaixo é só registro.
 
 ```mermaid
 flowchart LR
@@ -96,9 +97,11 @@ flowchart LR
 - **Telas** (`FeatureWalk3D`): Criar → "Criar Walk 3D", em 3 passos (escolher mídia, montar no Mac, importar e gerar o vídeo).
 - **Limitações conhecidas:** cores só com o termo DC (sem reflexos que mudam com o ângulo); o processamento no Mac leva de 30 min a 2 h; ainda não testado com uma casa real.
 
-## 9. Walk 3D 100% no aparelho (em andamento, decidido em 2026-11-10)
+## 9. Walk 3D 100% no aparelho (implementado, decidido em 2026-11-10)
 O anfitrião não deve precisar mandar nada para o Mac: a captura e o treino rodam no iPhone, sem servidor.
 - **Captura no app com ARKit** (sem LiDAR): o rastreamento de mundo já dá a pose de cada quadro, o que elimina o COLMAP. `Walk3DKit/Capture`: `ARSceneCapture` grava quadros-chave (a cada ~12 cm ou ~8°, no máximo 240, lado maior de 960 px, JPG sem metadados), `capture.json` (intrínsecos e pose câmera→mundo no padrão OpenCV) e `points.bin` (pontos de referência do ARKit, usados como ponto de partida do treino). **Feito (etapa 1).**
 - **Treino dos Gaussian splats em Metal no aparelho** (etapa 2). **Feito.** `Walk3DKit/Training`: 3DGS clássico simplificado (cor sem dependência de ângulo, perda L1). GPU: projeção, rasterização por blocos 16×16 (ida e volta) e Adam em kernels de computação. CPU: ordenação por profundidade e distribuição por bloco (memória compartilhada), clonar/dividir/podar a cada 100 passos. Começa pelos pontos do ARKit (cor tirada dos quadros, tamanho pelos vizinhos), completa até 5 mil se houver poucos. Padrões: 5 000 passos, imagens de 640 px, até 300 mil Gaussians. Grava `scene.splat` e `path.json` (poses niveladas pela gravidade, porque o celular fica em pé) ao lado da captura. Gradientes conferidos por diferenças finitas. Simulador: ~80 ms por passo com 100 mil Gaussians (~7 min); **falta medir no iPhone 15**.
-- **Fluxo único na tela** (etapa 3): capturar → treinar → vídeo, reaproveitando `SplatRenderer` e `Walk3DVideoRenderer`. O fluxo pelo Mac (seção 8) sai nessa etapa.
+- **Fluxo único na tela** (etapa 3). **Feito.** `FeatureWalk3D`: "Gravar" abre a câmera em tela cheia (`CaptureView`, prévia com `ARView` do RealityKit sobre a sessão do `ARSceneCapture`), com avisos de rastreamento e "Concluir" liberado a partir de 20 quadros (conclui sozinho em 240). Depois o `Walk3DModel` treina e gera o vídeo sem outro toque, com a tela acesa (`isIdleTimerDisabled`). Se o app sair da tela: na gravação, ela é cancelada (o ARKit pode perder a referência); no treino ou no vídeo, aparece "Tentar de novo", que continua da gravação ou da cena já salva. A câmera é pedida só no toque em "Gravar" (`NSCameraUsageDescription`); a tela da câmera usa `screenPrivacy()`. `Walk3DVideoRenderer.render(scene:)` lê a pasta da cena; `CameraPath` perdeu o encadeamento de fotos. O `PrivacyInfo.xcprivacy` não muda (câmera não é API "required reason" e nada é coletado).
+- **Primeiro teste no iPhone 15 (2026-11-10):** gravação, treino e vídeo funcionaram e o cômodo é reconhecível. Problemas: riscos finos e compridos (splats em forma de agulha) e borrão; aparelho muito quente; o Metal falha se o app vai para segundo plano. **Correção:** depois de cada passo do Adam, o kernel projeta a forma de cada Gaussian de volta para o permitido: escala entre 1 mm e `max(3 cm, 5% da cena)` e eixo mais longo no máximo 8× o segundo maior (limites em `Schedule`). Isso tira as agulhas sem achatar os discos das paredes, e o treino se adapta aos limites. A exportação e o renderizador mantêm um limite extra de segurança (o shader corta em ~113 px de desvio; revisar se aparecerem buracos perto das paredes).
+- **Pendente (etapa 4):** gravar de novo e comparar; medir tempo de treino e calor (xctrace); se a CPU pesar, ordenação na GPU; qualidade (mais passos, SSIM).
 - Limitações: vídeos antigos da galeria não servem (não têm pose); não roda no simulador (ARKit precisa do aparelho); qualidade menor que a do Mac.

@@ -8,7 +8,7 @@ import simd
 /// Classic 3D Gaussian Splatting rasterization: each Gaussian's 3D covariance is projected to a 2D ellipse
 /// in the vertex shader (EWA splatting), drawn as an instanced quad, and blended back to front.
 /// Sorting happens on the CPU once per frame with a 16-bit counting sort, which is fast enough for an
-/// offline video render. Colors are the SH degree 0 term only (the Mac step trains with `--sh-degree 0`).
+/// offline video render. Colors use only the SH degree 0 term to keep on-device rendering efficient.
 final class SplatRenderer {
     enum Failure: Error, Equatable {
         case noMetal
@@ -241,8 +241,10 @@ enum SplatShaders {
         float lambda1 = mid + radius;
         float lambda2 = max(mid - radius, 0.1);
         float2 axis = abs(b) < 1e-6 ? (a >= cc ? float2(1, 0) : float2(0, 1)) : normalize(float2(b, lambda1 - a));
-        float2 major = min(sqrt(2.0 * lambda1), 1024.0) * axis;
-        float2 minor = min(sqrt(2.0 * lambda2), 1024.0) * float2(axis.y, -axis.x);
+        // The scene writer already clamps scale. This second bound protects playback of an
+        // interrupted or older scene file from a single screen-filling Gaussian.
+        float2 major = min(sqrt(2.0 * lambda1), 160.0) * axis;
+        float2 minor = min(sqrt(2.0 * lambda2), 160.0) * float2(axis.y, -axis.x);
 
         float2 center = u.focal * c.xy / c.z + 0.5 * u.viewport;
         float2 margin = 0.3 * u.viewport;

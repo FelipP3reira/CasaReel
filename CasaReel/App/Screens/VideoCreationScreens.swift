@@ -57,7 +57,7 @@ struct PhotoPickerScreen: View {
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     Label("Walk 3D real", systemImage: "cube.transparent")
                         .font(DSFont.headline)
-                    Text("Vídeo andando pela casa em 3D, a partir das suas fotos e vídeos.")
+                    Text("Grave andando pelos cômodos e o iPhone gera um vídeo em 3D da casa.")
                         .font(DSFont.caption)
                         .foregroundStyle(DSColor.textSecondary)
                     SecondaryButton("Criar Walk 3D", systemImage: "figure.walk") { router.push(.walk3D) }

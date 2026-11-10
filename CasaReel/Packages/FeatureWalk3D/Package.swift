@@ -11,7 +11,7 @@ let package = Package(
     dependencies: [
         .package(path: "../Domain"),
         .package(path: "../DesignSystem"),
-        // Only for its event and result types; the app injects the actual exporter and renderer.
+        // Its types, and `ARSceneCapture` for the camera; the app injects the trainer and the renderer.
         .package(path: "../Walk3DKit"),
     ],
     targets: [
