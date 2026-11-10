@@ -95,3 +95,10 @@ flowchart LR
 - **iPhone, vídeo** (`Walk3DKit/Splat`): o `.aar` é aberto extraindo **só** `scene.splat` e `path.json` (arquivos regulares; o resto é ignorado). Renderização clássica de 3DGS em Metal: covariância projetada (EWA), quads instanciados, ordenação de trás para frente por counting sort de 16 bits na CPU e blend pré-multiplicado. O caminho é o das câmeras dos vídeos, suavizado, com o horizonte nivelado (um único "para cima") e reamostrado com velocidade constante. Duração de 12–45 s, 1080×1920, 30 fps, pausa por calor.
 - **Telas** (`FeatureWalk3D`): Criar → "Criar Walk 3D", em 3 passos (escolher mídia, montar no Mac, importar e gerar o vídeo).
 - **Limitações conhecidas:** cores só com o termo DC (sem reflexos que mudam com o ângulo); o processamento no Mac leva de 30 min a 2 h; ainda não testado com uma casa real.
+
+## 9. Walk 3D 100% no aparelho (em andamento, decidido em 2026-11-10)
+O anfitrião não deve precisar mandar nada para o Mac: a captura e o treino rodam no iPhone, sem servidor.
+- **Captura no app com ARKit** (sem LiDAR): o rastreamento de mundo já dá a pose de cada quadro, o que elimina o COLMAP. `Walk3DKit/Capture`: `ARSceneCapture` grava quadros-chave (a cada ~12 cm ou ~8°, no máximo 240, lado maior de 960 px, JPG sem metadados), `capture.json` (intrínsecos e pose câmera→mundo no padrão OpenCV) e `points.bin` (pontos de referência do ARKit, usados como ponto de partida do treino). **Feito (etapa 1).**
+- **Treino dos Gaussian splats em Metal no aparelho** (etapa 2), partindo dos pontos do ARKit.
+- **Fluxo único na tela** (etapa 3): capturar → treinar → vídeo, reaproveitando `SplatRenderer` e `Walk3DVideoRenderer`. O fluxo pelo Mac (seção 8) sai nessa etapa.
+- Limitações: vídeos antigos da galeria não servem (não têm pose); não roda no simulador (ARKit precisa do aparelho); qualidade menor que a do Mac.

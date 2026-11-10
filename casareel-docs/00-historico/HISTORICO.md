@@ -2,6 +2,12 @@
 
 > Registro curto de cada sessão de trabalho com o assistente, para não perder contexto entre conversas. Mais recente no topo.
 
+## 2026-11-10 (parte 4): Walk 3D 100% no aparelho, etapa 1 (captura ARKit)
+- Decisão do dono: **nada de mandar para o Mac** para gerar o 3D. Captura e treino rodam no iPhone, sem servidor. Vídeos antigos da galeria deixam de servir (não têm pose). Plano em 4 etapas em `design-walkthrough.md` §9.
+- `Walk3DKit/Capture`: `ARSceneCapture` (ARKit sem LiDAR, quadros-chave a cada ~12 cm/~8°, até 240, 960 px, JPG sem metadados), `CaptureManifest` (`capture.json` com intrínsecos e pose OpenCV, validado na leitura), `KeyframeSelector` e `PointCloudAccumulator` (`points.bin`).
+- Verificado: Walk3DKit 37/37. **Captura não testada no aparelho** (ARKit não roda no simulador); ainda sem tela.
+- Commits: sem linha de coautor.
+
 ## 2026-11-10 (parte 3): tutorial "Como gravar"
 - `FeatureWalk3D/RecordingGuideView.swift`: tutorial em páginas.
   - **Vídeo 3D, 7 páginas:** preparar a casa, configurar a câmera, como segurar, como andar (com planta animada do trajeto), passar pelas portas, o que atrapalha e resumo.

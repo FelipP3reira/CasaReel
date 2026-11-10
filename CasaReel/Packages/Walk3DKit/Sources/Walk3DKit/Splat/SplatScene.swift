@@ -74,7 +74,3 @@ struct SplatScene {
         return (sigma[0][0], sigma[1][0], sigma[2][0], sigma[1][1], sigma[2][1], sigma[2][2])
     }
 }
-
-private extension SIMD3 where Scalar == Float {
-    var allFinite: Bool { x.isFinite && y.isFinite && z.isFinite }
-}
