@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import clean_splat
 import init_points
 import make_camera_track as track
 
@@ -139,6 +140,56 @@ class TrimmingTests(unittest.TestCase):
             init_points.write_init_ply([(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)], Path(folder) / "init.ply")
             self.assertEqual(track.read_init_points(folder), [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)])
             self.assertEqual(track.read_init_points(Path(folder) / "missing"), [])
+
+
+class CleanSplatTests(unittest.TestCase):
+    PROPS = ["x", "y", "z", "scale_0", "scale_1", "scale_2", "opacity"]
+
+    def write(self, folder, splats):
+        header = "ply\nformat binary_little_endian 1.0\nelement vertex %d\n" % len(splats)
+        header += "".join("property float %s\n" % name for name in self.PROPS) + "end_header\n"
+        path = Path(folder) / "in.ply"
+        path.write_bytes(header.encode() + b"".join(struct.pack("<7f", *s) for s in splats))
+        return path
+
+    def read(self, path):
+        data = Path(path).read_bytes()
+        body = data[data.index(b"end_header\n") + 11:]
+        return [struct.unpack_from("<7f", body, i * 28) for i in range(len(body) // 28)]
+
+    def test_needles_are_shortened_discs_and_normal_splats_are_kept(self):
+        log = math.log
+        splats = [
+            (1, 2, 3, log(0.5), log(0.02), log(0.02), 0.7),   # needle: 25x the second axis
+            (4, 5, 6, log(0.3), log(0.3), log(0.01), 0.4),    # flat disc (a wall): two long axes
+            (7, 8, 9, log(0.05), log(0.04), log(0.03), 0.9),  # ordinary
+            (0, 0, 0, log(3.0), log(3.0), log(3.0), 0.5),     # oversized floater
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            report = clean_splat.clean(self.write(folder, splats), Path(folder) / "out.ply")
+            out = self.read(Path(folder) / "out.ply")
+        self.assertEqual(report["splats"], 4)
+        self.assertAlmostEqual(math.exp(out[0][3]), 0.02 * 6, places=5)   # longest axis: 6x the second
+        for kept in (1, 2):                                                # disc and ordinary splat untouched
+            for before, after in zip(splats[kept], out[kept]):
+                self.assertAlmostEqual(before, after, places=6)
+        self.assertAlmostEqual(math.exp(max(out[3][3:6])), 1.0, places=5)  # capped at 1 m
+        for before, after in zip(splats, out):                             # nothing else changes
+            for index in (0, 1, 2, 6):  # position and opacity are float32 in the file
+                self.assertAlmostEqual(before[index], after[index], places=6)
+
+    def test_non_finite_scales_do_not_survive(self):
+        with tempfile.TemporaryDirectory() as folder:
+            clean_splat.clean(self.write(folder, [(0, 0, 0, math.nan, 0.0, 0.0, 0.5)]), Path(folder) / "out.ply")
+            out = self.read(Path(folder) / "out.ply")
+        self.assertTrue(all(math.isfinite(v) for v in out[0]))
+
+    def test_rejects_a_file_with_the_wrong_size(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.write(folder, [(0, 0, 0, 0.0, 0.0, 0.0, 0.5)])
+            path.write_bytes(path.read_bytes()[:-3])
+            with self.assertRaises(ValueError):
+                clean_splat.clean(path, Path(folder) / "out.ply")
 
 
 if __name__ == "__main__":

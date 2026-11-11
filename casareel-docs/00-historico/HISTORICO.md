@@ -30,6 +30,13 @@
 - Adicionado `RemoteWalk3DProcessor`: compacta a captura, envia para o worker, acompanha treino/render e baixa o MP4. URL do túnel e token ficam em `Config/Walk3DWorker.xcconfig`, ignorado pelo Git. A tela informa que a captura vai ao Mac de testes.
 - Verificado: app compila; FastAPI inicia e rejeita pedido sem token. Ainda falta configurar o comando real do Brush/renderizador, abrir Cloudflare Tunnel e fazer a primeira execução ponta a ponta.
 
+## 2026-11-11 (parte 3): agulhas e véu nos vídeos do worker do Mac
+- **Medido:** no PLY do Brush (6000 passos, 33 mil splats), 22% dos splats são agulhas (eixo maior > 10× o segundo; p99 = 72×) e o maior tem 11,6 m. Na renderização aparecem como riscos brancos/coloridos sobre o quarto.
+- **Correção:** `clean_splat.py` roda antes do render (`render_with_supersplat.sh`): eixo maior ≤ 6× o segundo e nenhum eixo > 1 m (as escalas do Brush são logs). Discos achatados (paredes, piso) não mudam; o resto do arquivo é copiado byte a byte. Testes: 3 novos (19 no total).
+- **Testado e descartado:** razão 3 (achata bordas finas de porta, piora o corredor); esconder splats grandes e fracos (abre manchas escuras na parede); `--scale-loss-weight 1e-5` no Brush (as agulhas continuam: 23,5% contra 21,9%, só o maior splat cai de 11,6 m para 3,9 m).
+- **Resta:** um véu cinza na parede quando a câmera passa perto dela (a parede lisa tem poucos detalhes para o treino fixar). Treinar mais passos ajuda; gravar a 1–2 m das paredes também.
+- **Bug achado pelos testes:** um splat com escala NaN era trocado na conta mas não regravado no arquivo.
+
 ## 2026-11-11 (parte 2): treino em 6000 passos e abertura do vídeo
 - **O "mesma coisa" era o worker antigo:** o worker só lê o `.env` ao iniciar; o job saiu em 1 min com 3,2 mil splats (= 1000 passos). Depois de reiniciar, `--total-steps 6000 --max-frames 80`: ~5 min por vídeo e 15–50 mil splats, quarto nítido (cama, cadeira, monitor, porta, piso).
 - **Abertura ruim:** o caminho repetia a gravação inteira, inclusive o trecho colado na porta (borrão marrom por ~5 s). `make_camera_track.py` agora usa só a maior sequência de quadros com ≥ 1,2 m de folga à frente (percentil 20 dos pontos do ARKit num cone de 30°; falhas de até 2 quadros; mínimo de 12 quadros e 25% da gravação, senão mantém tudo). Na gravação medida cortou os ~7 s iniciais; sobra ~1,5 s de cortina translúcida, que é da gravação.
