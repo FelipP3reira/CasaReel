@@ -19,7 +19,7 @@ public struct Walk3DView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.large) {
-                Text(walkString("Grave andando pelos cômodos e o iPhone monta o 3D e o vídeo sozinho, sem enviar nada para fora do aparelho."))
+                Text(walkString("Grave andando pelos cômodos. O app envia a captura com segurança para o seu Mac de testes, que monta o 3D e devolve o vídeo automaticamente."))
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textSecondary)
                 recordStep
@@ -82,16 +82,16 @@ public struct Walk3DView: View {
     private var processStep: some View {
         Card {
             VStack(alignment: .leading, spacing: Spacing.small) {
-                StepTitle(number: 2, title: walkString("O iPhone monta o 3D e o vídeo"))
+                StepTitle(number: 2, title: walkString("Seu Mac de testes monta o 3D e o vídeo"))
                 switch model.phase {
                 case .idle, .capturing:
-                    Text(walkString("Começa sozinho quando você concluir a gravação. Leva alguns minutos: deixe o app aberto e a tela ligada."))
+                    Text(walkString("Começa sozinho quando você concluir a gravação. O Mac precisa estar ligado, com o worker aberto e conectado à internet."))
                         .font(DSFont.caption)
                         .foregroundStyle(DSColor.textSecondary)
                 case .savingCapture:
                     progressRow(nil, label: walkString("Salvando a gravação…"))
                 case .training(let progress, let pausedForHeat):
-                    progressRow(progress, label: pausedForHeat ? Self.heatMessage : walkString("Montando o 3D da casa…"))
+                    progressRow(progress, label: pausedForHeat ? Self.heatMessage : walkString("Enviando e treinando o 3D no Mac…"))
                 case .rendering(let progress, let pausedForHeat):
                     progressRow(progress, label: pausedForHeat ? Self.heatMessage : walkString("Gerando o vídeo andando…"))
                 case .finished:

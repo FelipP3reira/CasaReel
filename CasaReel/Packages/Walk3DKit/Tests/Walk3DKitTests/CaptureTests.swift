@@ -114,3 +114,29 @@ struct CaptureManifestTests {
         #expect(throws: SceneCaptureError.invalidCapture) { try CaptureManifest.load(from: CaptureManifest(frames: frames, pointCount: 0).encoded()) }
     }
 }
+
+struct RemoteCaptureArchiveTests {
+    @Test func writesCentralDirectoryAtTheOffsetRecordedInTheZipTrailer() throws {
+        let fixtures = try MediaFixtures()
+        let frames = fixtures.directory.appending(path: "frames", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: frames, withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: fixtures.directory.appending(path: "capture.json"))
+        try Data([0, 1, 2, 3]).write(to: fixtures.directory.appending(path: "points.bin"))
+        for index in 0..<20 {
+            try Data([UInt8(index)]).write(to: frames.appending(path: String(format: "frame_%05d.jpg", index)))
+        }
+
+        let archive = fixtures.directory.deletingLastPathComponent().appending(path: "walk3d.zip")
+        try RemoteCaptureArchive.write(directory: fixtures.directory, to: archive)
+        let bytes = try Data(contentsOf: archive)
+
+        // End-of-central-directory is 22 bytes because this archive has no ZIP comment.
+        let trailer = bytes.count - 22
+        #expect(Array(bytes[trailer..<(trailer + 4)]) == [0x50, 0x4B, 0x05, 0x06])
+        let offset = bytes[(trailer + 16)..<(trailer + 20)].enumerated().reduce(UInt32(0)) { partial, item in
+            partial | (UInt32(item.element) << UInt32(item.offset * 8))
+        }
+        let central = Int(offset)
+        #expect(Array(bytes[central..<(central + 4)]) == [0x50, 0x4B, 0x01, 0x02])
+    }
+}

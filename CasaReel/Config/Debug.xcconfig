@@ -11,3 +11,10 @@ INFOPLIST_KEY_CFBundleDisplayName = CasaReel Dev
 PUBLIC_KEY_PINS = Jf2Pq4xx/4QRGorPRny+MO3hxOlGg8r9N4NrlYFTXR8=,BX93AE2VpgMNay/MWxW/woMAKTLbr/XHebMz4+Xs5s8=
 // Ed25519 public key that verifies signed remote config. The private key never enters the repo.
 CONFIG_SIGNING_PUBLIC_KEY = YTqzXZN/Sb05Q2xYonjLG6NcwGJsg4hhBbInJsDzfck=
+
+// Local only. Define these in Config/Walk3DWorker.xcconfig (ignored by git).
+WALK3D_WORKER_URL =
+WALK3D_WORKER_TOKEN =
+
+// This file supplies local secrets after the safe empty defaults above.
+#include? "Walk3DWorker.xcconfig"

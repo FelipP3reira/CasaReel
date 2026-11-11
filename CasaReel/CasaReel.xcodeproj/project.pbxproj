@@ -522,6 +522,7 @@
 			baseConfigurationReference = A10000000000000000000008 /* Debug.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = H946TF33VJ;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "CasaReel Dev";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "A câmera grava os cômodos para o Walk 3D. As imagens ficam só no seu iPhone.";
@@ -537,6 +538,7 @@
 			baseConfigurationReference = A10000000000000000000009 /* Staging.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = H946TF33VJ;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "CasaReel Dev";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "A câmera grava os cômodos para o Walk 3D. As imagens ficam só no seu iPhone.";
@@ -552,6 +554,7 @@
 			baseConfigurationReference = A1000000000000000000000A /* Release.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = H946TF33VJ;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "CasaReel Dev";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "A câmera grava os cômodos para o Walk 3D. As imagens ficam só no seu iPhone.";

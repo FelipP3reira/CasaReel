@@ -12,5 +12,9 @@
 	<string>$(PUBLIC_KEY_PINS)</string>
 	<key>CRUniversalLinkHost</key>
 	<string>$(UNIVERSAL_LINK_HOST)</string>
+	<key>CRWalk3DWorkerToken</key>
+	<string>$(WALK3D_WORKER_TOKEN)</string>
+	<key>CRWalk3DWorkerURL</key>
+	<string>$(WALK3D_WORKER_URL)</string>
 </dict>
 </plist>

@@ -25,8 +25,8 @@ struct AppEnvironment: Sendable {
     let photoAnalyzer: any PhotoAnalyzing
     let videoRenderer: any VideoRenderer
     let walk3DCapture: ARSceneCapture
-    let walk3DTrainer: SplatTrainer
-    let walk3DRenderer: Walk3DVideoRenderer
+    /// Present only in Debug when the private Mac worker URL and token are configured.
+    let walk3DRemoteProcessor: RemoteWalk3DProcessor?
     let localStore: any LocalStore
 
     var deepLinkParser: DeepLinkParser {
@@ -84,10 +84,20 @@ struct AppEnvironment: Sendable {
             photoAnalyzer: PhotoAnalysisService(),
             videoRenderer: VideoEngineRenderer(library: templates, depthEstimator: CoreMLDepthEstimator(), keepAwake: keepScreenAwake),
             walk3DCapture: ARSceneCapture(),
-            walk3DTrainer: SplatTrainer(),
-            walk3DRenderer: Walk3DVideoRenderer(),
+            walk3DRemoteProcessor: walk3DRemoteProcessor(infoDictionary: infoDictionary),
             localStore: SwiftDataLocalStore()
         )
+    }
+
+    /// The private test worker is configured by an ignored Debug xcconfig, so its tunnel URL and bearer token
+    /// never enter the repository or a release build.
+    private static func walk3DRemoteProcessor(infoDictionary: [String: Any]) -> RemoteWalk3DProcessor? {
+        guard let rawURL = infoDictionary["CRWalk3DWorkerURL"] as? String,
+              let url = URL(string: rawURL), url.scheme == "https", url.host() != nil,
+              let token = infoDictionary["CRWalk3DWorkerToken"] as? String,
+              token.count >= 24, !token.contains("$(")
+        else { return nil }
+        return RemoteWalk3DProcessor(baseURL: url, token: token)
     }
 
     /// Deletes photo batches from earlier runs, except the ones the saved draft still uses.

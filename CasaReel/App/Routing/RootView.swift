@@ -5,6 +5,7 @@ import AVFoundation
 import FeatureWalk3D
 import SwiftUI
 import UIKit
+import Walk3DKit
 
 /// Chooses between the sign-in flow and the tab shell, and handles incoming Universal Links.
 struct RootView: View {
@@ -20,13 +21,17 @@ struct RootView: View {
     init(environment: AppEnvironment) {
         self.environment = environment
         _photoSelection = State(initialValue: PhotoSelectionModel(preparer: environment.photoPreparer, analyzer: environment.photoAnalyzer))
-        let trainer = environment.walk3DTrainer, renderer = environment.walk3DRenderer
-        // Local mode: no account yet, so the free plan applies (watermark on).
+        let remote = environment.walk3DRemoteProcessor
+        // Development mode: capture stays on the phone, then the private Mac worker trains and renders it.
         _walk3D = State(initialValue: Walk3DModel(
             watermark: true,
             capturer: environment.walk3DCapture,
-            train: { capture in trainer.train(capture: capture) },
-            render: { scene, watermark in renderer.render(scene: scene, options: .init(watermark: watermark)) },
+            train: { capture in
+                remote?.train(capture: capture) ?? AsyncThrowingStream { $0.finish(throwing: RemoteWalk3DProcessor.Failure.rejected) }
+            },
+            render: { scene, watermark in
+                remote?.render(scene: scene, watermark: watermark) ?? AsyncThrowingStream { $0.finish(throwing: RemoteWalk3DProcessor.Failure.rejected) }
+            },
             // Asked only after the host taps "Gravar"; a denial never starts capture.
             requestCamera: {
                 let status = AVCaptureDevice.authorizationStatus(for: .video)

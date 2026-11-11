@@ -169,6 +169,12 @@ public final class Walk3DModel {
 
     public func retry() {
         guard canRetry else { return }
+        // A remote scene is only a handle to a Mac job. Once that job failed,
+        // retrying its render endpoint can never succeed. Discard the handle so
+        // the retained ARKit capture is uploaded as a fresh job instead.
+        if scene?.directory.path.hasPrefix("/remote-walk3d/") == true {
+            scene = nil
+        }
         task = Task { await process() }
     }
 

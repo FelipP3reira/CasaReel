@@ -1,13 +1,25 @@
 {
   "sourceLanguage" : "pt-BR",
   "strings" : {
-    "%lld" : {},
+    "%lld" : {
+
+    },
     "%lld de %lld quadros" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld of %lld frames"
+          }
+        }
+      }
+    },
+    "A gravação é feita aqui no app: é ela que diz ao iPhone onde a câmera estava." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You record right here in the app: that's how the iPhone knows where the camera was."
           }
         }
       }
@@ -28,16 +40,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recording stopped because the app left the screen. Record again."
-          }
-        }
-      }
-    },
-    "A gravação é feita aqui no app: é ela que diz ao iPhone onde a câmera estava." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You record right here in the app: that's how the iPhone knows where the camera was."
           }
         }
       }
@@ -122,6 +124,16 @@
         }
       }
     },
+    "Câmera reta: nem para o chão, nem para o teto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the camera level: not at the floor, not at the ceiling."
+          }
+        }
+      }
+    },
     "Cancelar" : {
       "localizations" : {
         "en" : {
@@ -183,6 +195,7 @@
       }
     },
     "Começa sozinho quando você concluir a gravação. Leva alguns minutos: deixe o app aberto e a tela ligada." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -191,6 +204,9 @@
           }
         }
       }
+    },
+    "Começa sozinho quando você concluir a gravação. O Mac precisa estar ligado, com o worker aberto e conectado à internet." : {
+
     },
     "Como gravar (tutorial)" : {
       "localizations" : {
@@ -232,12 +248,12 @@
         }
       }
     },
-    "Câmera reta: nem para o chão, nem para o teto." : {
+    "Dê uma volta pelo cômodo, perto das paredes, com a câmera olhando para o meio." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep the camera level: not at the floor, not at the ceiling."
+            "value" : "Walk around the room near the walls, with the camera facing the middle."
           }
         }
       }
@@ -282,12 +298,22 @@
         }
       }
     },
-    "Dê uma volta pelo cômodo, perto das paredes, com a câmera olhando para o meio." : {
+    "É a passagem pelas portas que liga os cômodos no 3D." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Walk around the room near the walls, with the camera facing the middle."
+            "value" : "Walking through the doors is what links the rooms in 3D."
+          }
+        }
+      }
+    },
+    "É o passo mais importante: o 3D nasce da diferença entre um ponto de vista e outro." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is the most important step: 3D comes from the difference between one viewpoint and the next."
           }
         }
       }
@@ -301,6 +327,9 @@
           }
         }
       }
+    },
+    "Enviando e treinando o 3D no Mac…" : {
+
     },
     "Espelhos e vidros grandes: o 3D \"vê\" um cômodo que não existe." : {
       "localizations" : {
@@ -423,6 +452,7 @@
       }
     },
     "Grave andando pelos cômodos e o iPhone monta o 3D e o vídeo sozinho, sem enviar nada para fora do aparelho." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -431,6 +461,9 @@
           }
         }
       }
+    },
+    "Grave andando pelos cômodos. O app envia a captura com segurança para o seu Mac de testes, que monta o 3D e devolve o vídeo automaticamente." : {
+
     },
     "Grave pelo CasaReel" : {
       "localizations" : {
@@ -503,21 +536,12 @@
       }
     },
     "Montando o 3D da casa…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Building the 3D of the home…"
-          }
-        }
-      }
-    },
-    "Movimentos bruscos e câmera tremida." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sudden moves and a shaky camera."
           }
         }
       }
@@ -532,22 +556,12 @@
         }
       }
     },
-    "No fim, deixe o app aberto até o vídeo ficar pronto." : {
+    "Movimentos bruscos e câmera tremida." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "At the end, keep the app open until the video is ready."
-          }
-        }
-      }
-    },
-    "No plano grátis o vídeo sai com a marca d'água CasaReel." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "On the free plan the video carries the CasaReel watermark."
+            "value" : "Sudden moves and a shaky camera."
           }
         }
       }
@@ -602,6 +616,26 @@
         }
       }
     },
+    "No fim, deixe o app aberto até o vídeo ficar pronto." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At the end, keep the app open until the video is ready."
+          }
+        }
+      }
+    },
+    "No plano grátis o vídeo sai com a marca d'água CasaReel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the free plan the video carries the CasaReel watermark."
+          }
+        }
+      }
+    },
     "O 3D só fica bom com luz e com tudo parado." : {
       "localizations" : {
         "en" : {
@@ -643,6 +677,7 @@
       }
     },
     "O iPhone monta o 3D e o vídeo" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -782,6 +817,9 @@
         }
       }
     },
+    "Seu Mac de testes monta o 3D e o vídeo" : {
+
+    },
     "Siga os avisos na tela: se pedir para ir mais devagar, vá." : {
       "localizations" : {
         "en" : {
@@ -832,16 +870,6 @@
         }
       }
     },
-    "Vire devagar: uns 4 segundos para fazer uma curva." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Turn slowly: about 4 seconds per turn."
-          }
-        }
-      }
-    },
     "Vídeo pronto." : {
       "localizations" : {
         "en" : {
@@ -862,22 +890,12 @@
         }
       }
     },
-    "É a passagem pelas portas que liga os cômodos no 3D." : {
+    "Vire devagar: uns 4 segundos para fazer uma curva." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Walking through the doors is what links the rooms in 3D."
-          }
-        }
-      }
-    },
-    "É o passo mais importante: o 3D nasce da diferença entre um ponto de vista e outro." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This is the most important step: 3D comes from the difference between one viewpoint and the next."
+            "value" : "Turn slowly: about 4 seconds per turn."
           }
         }
       }
