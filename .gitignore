@@ -29,3 +29,19 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+
+# Walk 3D service: local Python environment
+services/walk3d/.venv/
+__pycache__/
+CasaReel/Config/Walk3DWorker.xcconfig
+CasaReel/tools/walk3d-worker/.venv/
+CasaReel/tools/walk3d-worker/bin/
+CasaReel/tools/walk3d-worker/renderer/.build/
+CasaReel/tools/walk3d-worker/jobs/
+!CasaReel/tools/walk3d-worker/.env.example
+
+# Walk 3D Mac worker: downloaded runtimes, dependencies, build output and logs (never committed)
+CasaReel/tools/walk3d-worker/runtime/
+CasaReel/tools/walk3d-worker/splat-transform/node_modules/
+CasaReel/tools/walk3d-worker/target/
+CasaReel/tools/walk3d-worker/worker-server.log
